@@ -1,4 +1,5 @@
 /**
+ * 
  * @file emulARM.c
  * @author François Cayre, Nicolas Castagné, François Portet
  * @brief Main pour le début du projet émulateur.
