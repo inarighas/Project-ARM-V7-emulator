@@ -1,9 +1,9 @@
 //                 Code fonction memoire 31/09/2015                 //
-//			Projet info 2a sicom emul ARM		    //
-//			Ali saghiran -- Damien chabannes            //
+//			Projet info 2a sicom emul ARM		    				//
+//			Ali saghiran -- Damien chabannes            			//
 
 
-#include"memory.h"
+#include "memory.h"
 
 
 
@@ -143,7 +143,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr){
     	/*for (i=0 ; i<(arr-dep+1); i++){
 			printf("%x ",seg->contenu[i]);
      		}*/
-     	affiche_section((seg->nom), seg->adresse_initiale, (seg->contenu),arr+1);
+     	affiche_section((seg->nom), seg->adresse_initiale, (seg->contenu),(arr+1-(seg->adresse_initiale)));
      	puts(" ");
      	return;
   		}
@@ -153,7 +153,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr){
 		/*for (i=dep ; i<(arr-dep+1); i++){
 			printf("%x ",seg->contenu[i]);
      		}*/
-     	affiche_section((seg->nom), dep, (seg->contenu),arr+1);
+     	affiche_section((seg->nom), dep, (seg->contenu),arr+1-dep);
      	puts(" ");
      	return;
   		}
@@ -186,14 +186,13 @@ MAPMEM ajout_seg_map(MAPMEM mem,char* name, unsigned int adr, unsigned int size_
 
 
 //
-char* get_byte_seg(SEGMENT seg,char* hex){
+char* get_byte_seg(SEGMENT seg,unsigned int hexval){
 
-	unsigned int hexval=0;
+	//unsigned int hexval=0;
 	// char* str;    //not used
 	int lim =0;
 	
-	if(hex!=NULL) hexval=strtol(hex,NULL,16);
-	
+	//if(hex!=NULL) hexval=strtol(hex,NULL,16);
 	
 	if (hexval<(seg->adresse_initiale)){
 		printf("case introuvable dans ce segment\n");
@@ -233,9 +232,9 @@ char* get_byte_seg(SEGMENT seg,char* hex){
 
 
 //////////////////
-SEGMENT change_val_seg(SEGMENT seg,char* hex, char val){
+SEGMENT change_val_seg(SEGMENT seg,unsigned int hexval, char val){
 	char *str;//[seg->taille_max];
-	str=get_byte_seg(seg,hex);
+	str=get_byte_seg(seg,hexval);
 	if(str==NULL) {
 		printf("Opération impossible\n");
 		return seg;
@@ -245,19 +244,19 @@ SEGMENT change_val_seg(SEGMENT seg,char* hex, char val){
 	}
 	
 //
- SEGMENT change_plage_seg(SEGMENT seg, char* hexdep, char* hexarr , char* val){
- 	unsigned int dep =0;
-	unsigned int arr =0;
+ SEGMENT change_plage_seg(SEGMENT seg, unsigned int dep, unsigned int arr , char* val){
+ 	//unsigned int dep =0;
+	//unsigned int arr =0;
 	int i =0;
 	char* str;
 	// char s[32];       //not used
 	
-	if(hexarr==NULL || hexdep==NULL || val==NULL) return seg;
+	//if(hexarr==NULL || hexdep==NULL || val==NULL) return seg;
 
- 	if(hexdep!=NULL && hexarr!=NULL) {
+ 	/*if(hexdep!=NULL && hexarr!=NULL) {
  		dep = strtol(hexdep,NULL,16);
 		arr = strtol(hexarr,NULL,16);
-		}
+		}*/
 		
 	if (dep>arr) {
 		printf("adresse de départ apres arrivee\n");
@@ -279,7 +278,7 @@ SEGMENT change_val_seg(SEGMENT seg,char* hex, char val){
 	
 		printf("%X \n",seg->taille);
 	
-	str=get_byte_seg(seg,hexdep);
+	str=get_byte_seg(seg,dep);
 			if (str==NULL){
 				printf("Erreur fct get byte seg \n");
 				return seg;
@@ -301,9 +300,9 @@ SEGMENT change_val_seg(SEGMENT seg,char* hex, char val){
 	void affiche_section(char* name, unsigned int start, char* content, unsigned int taille) {
     int k;
     unsigned char octet =0;
-    printf("\n section {%s} ** loaded at 0x%x :\n",name,start); 
+    printf("\n section {%s} **[size: %d bytes] loaded at 0x%x :\n",name,taille,start); 
     if (content!=NULL && taille>0) {
-        for(k=0; k<taille; k+=1) {
+        for(k=0; k<taille; k++) {
            // on affiche le contenu de la section qui devrait se retrouver 
            // en "memoire virtuelle" à l'adresse virtuelle start+k 
            // (*(content + k) dans la mémoire physique)

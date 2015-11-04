@@ -1,10 +1,12 @@
 #ifndef _MEMORY_H_
 #define _MEMORY_H_
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<stdint.h>
+
+//#include "projetemularm.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 
 //#define NMAX_SEG 7
@@ -34,9 +36,9 @@ unsigned int maxvalue(unsigned int i,unsigned int j);
   SEGMENT inc_segment(SEGMENT seg);
   SEGMENT dec_segment(SEGMENT seg);
   
-  char* get_byte_seg(SEGMENT seg,char* hex);
-  SEGMENT change_val_seg(SEGMENT seg,char* hex, char val);
-  SEGMENT change_plage_seg(SEGMENT seg, char* hexdep, char* hexarr , char* val);
+  char* get_byte_seg(SEGMENT seg,unsigned int hex);
+  SEGMENT change_val_seg(SEGMENT seg,unsigned int hex, char val);
+  SEGMENT change_plage_seg(SEGMENT seg, unsigned int hexdep, unsigned int hexarr , char* val);
 
   void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr);
   MAPMEM ajout_seg_map(MAPMEM mem ,char* name, unsigned int adr ,unsigned int size_max, int place);
