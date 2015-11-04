@@ -1,15 +1,17 @@
 
-//                 Header registre 27/09/2015                             //
-//			Projet info 2a sicom emul ARM								//
-//			Ali saghiran -- Damien chabannes							/ /
+//                 Header registre 27/09/2015                 				//
+//			Projet info 2a sicom emul ARM									//
+//			Ali saghiran -- Damien chabannes								//
 
 #ifndef _REGISTRE_H			// Par précaution
 #define _REGISTRE_H			// Par précaution
 
-#include<stdio.h>
-#include<stdlib.h>
-#include <string.h>
 
+//#include "projetemularm.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 // Définition de la structure REGISTRE
 typedef struct {
