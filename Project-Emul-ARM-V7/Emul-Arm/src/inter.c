@@ -1,6 +1,6 @@
 
 #include "inter.h"
- 
+
 
 /**
  * allocation et init interpreteur
@@ -66,42 +66,42 @@ int is_hexa(char* chaine) {
     char *end;
     unsigned long val=0;
     val= strtol(chaine, &end, 16);
-    return (chaine!=NULL 
-	    	&& strlen(chaine)>2
-	    	&& chaine[0]=='0' && chaine[1]=='x'     //si ca commence par 0 et x
-	    	&& sscanf(chaine,"%x",&i)==1 
-	    	&& strlen(chaine)<11 
-	    	&& *end=='\0'
-	    	&& val <= 0xFFFFFFFF); 
+    return (chaine!=NULL
+            && strlen(chaine)>2
+            && chaine[0]=='0' && chaine[1]=='x'     //si ca commence par 0 et x
+            && sscanf(chaine,"%x",&i)==1
+            && strlen(chaine)<11
+            && *end=='\0'
+            && val <= 0xFFFFFFFF);
 }
 
 int is_deci(char* chaine) {
-	long long a = 0;
+    long long a = 0;
     char *end;
     a = strtol(chaine, &end, 10);
-    return (chaine!=NULL 
-	    && strlen(chaine)>0 
-	    && *end=='\0');
+    return (chaine!=NULL
+            && strlen(chaine)>0
+            && *end=='\0');
 }
 
 int is_deci32(char* chaine) {
-	long long a = 0;
+    long long a = 0;
     char *end;
     a = strtol(chaine, &end, 10);
-    return (chaine!=NULL 
-	    && strlen(chaine)>0 
-	    && *end=='\0'
-	    && a<4294967296);
+    return (chaine!=NULL
+            && strlen(chaine)>0
+            && *end=='\0'
+            && a<4294967296);
 }
 
 int is_deci8(char* chaine) {
-	long long a = 0;
+    long long a = 0;
     char *end;
     a = strtol(chaine, &end, 10);
-    return (chaine!=NULL 
-	    && strlen(chaine)>0 
-	    && *end=='\0'
-	    && a<256);
+    return (chaine!=NULL
+            && strlen(chaine)>0
+            && *end=='\0'
+            && a<256);
 }
 
 /* teste si un token est le nom d'un registre */
@@ -110,58 +110,58 @@ int is_deci8(char* chaine) {
    @return une chaine de caractere
 */
 
-int is_reg(char *token){
-    
+int is_reg(char *token) {
+
     if(token == NULL) return 0;
 
     if(strcmp(token,"r0") == 0
-    || strcmp(token,"r1") == 0
-    || strcmp(token,"r1") == 0
-    || strcmp(token,"r2") == 0
-    || strcmp(token,"r3") == 0
-    || strcmp(token,"r4") == 0
-    || strcmp(token,"r5") == 0
-    || strcmp(token,"r6") == 0
-    || strcmp(token,"r7") == 0
-    || strcmp(token,"r8") == 0
-    || strcmp(token,"r9") == 0
-    || strcmp(token,"r10") == 0
-    || strcmp(token,"r11") == 0
-    || strcmp(token,"r12") == 0
-    || strcmp(token,"sp") == 0
-    || strcmp(token,"lr") == 0
-    || strcmp(token,"pc") == 0
-    || strcmp(token,"apsr") == 0)
-	return 1;
+            || strcmp(token,"r1") == 0
+            || strcmp(token,"r1") == 0
+            || strcmp(token,"r2") == 0
+            || strcmp(token,"r3") == 0
+            || strcmp(token,"r4") == 0
+            || strcmp(token,"r5") == 0
+            || strcmp(token,"r6") == 0
+            || strcmp(token,"r7") == 0
+            || strcmp(token,"r8") == 0
+            || strcmp(token,"r9") == 0
+            || strcmp(token,"r10") == 0
+            || strcmp(token,"r11") == 0
+            || strcmp(token,"r12") == 0
+            || strcmp(token,"sp") == 0
+            || strcmp(token,"lr") == 0
+            || strcmp(token,"pc") == 0
+            || strcmp(token,"apsr") == 0)
+        return 1;
     else return 0;
 }
 
-int is_range(char *chaine){
-	
-	char* token;
-	if (chaine==NULL) return 0;
-	//token=get_next_token(inter);
-	//if(strcmp(token,"+")==0)
-	//puts(token);
-	if (is_hexa(token)){
-		token=strtok(NULL ," \t\n");
-		if(token!=NULL && (is_deci32(token) || is_deci8(token))
-			&& (strtok(NULL ," \t\n")==NULL)) return 1;
-		else return 0;
-		}
-		
-	else if(is_hexa(strtok(chaine ,":"))){
-		token=strtok(NULL," \t\n");
-		if ((token!= NULL)
-			&& is_hexa(token)
-			&&(strtok(NULL ," \t\n")==NULL)) return 1;
-		else return 0;
-		}
-		
-	return 0;
-		
-	}
-	
+int is_range(char *chaine) {
+
+    char* token;
+    if (chaine==NULL) return 0;
+    //token=get_next_token(inter);
+    //if(strcmp(token,"+")==0)
+    //puts(token);
+    if (is_hexa(token)) {
+        token=strtok(NULL ," \t\n");
+        if(token!=NULL && (is_deci32(token) || is_deci8(token))
+                && (strtok(NULL ," \t\n")==NULL)) return 1;
+        else return 0;
+    }
+
+    else if(is_hexa(strtok(chaine ,":"))) {
+        token=strtok(NULL," \t\n");
+        if ((token!= NULL)
+                && is_hexa(token)
+                &&(strtok(NULL ," \t\n")==NULL)) return 1;
+        else return 0;
+    }
+
+    return 0;
+
+}
+
 /**
  * retourne le type du token (fonction très incomplete)
  * @param chaine le token à analyser
@@ -170,15 +170,15 @@ int is_range(char *chaine){
  */
 int get_type(char* chaine) {
     if (is_hexa(chaine))		//-----------------@ entier 32 Hexa
-       	return HEXA;
+        return HEXA;
     if (is_deci32(chaine))		//----------------entier 32 bits
-		return DECI32;
-	if (is_deci8(chaine))		//----------------entier 8 bits
-		return DECI8;						
-	if (is_reg(chaine)==1)		//----------------reg
-		return REG;	
-	if (is_range(chaine))		//----------------range or plage
-		return RANGE;
+        return DECI32;
+    if (is_deci8(chaine))		//----------------entier 8 bits
+        return DECI8;
+    if (is_reg(chaine)==1)		//----------------reg
+        return REG;
+    if (is_range(chaine))		//----------------range or plage
+        return RANGE;
     return UNKNOWN;
 }
 
@@ -270,29 +270,29 @@ int loadcmd(interpreteur inter) {
     char *token = NULL;
     char *nom_du_fichier = NULL;
     char *adresse_du_fichier = NULL;
-					
-    if((token = get_next_token(inter))==NULL){	
-	WARNING_MSG("\n****Erreur****\nRentrez un nom de fichier a charger");   // indique "Erreur" si l'utilisateur rentre juste "load"
-	return 1;
+
+    if((token = get_next_token(inter))==NULL) {
+        WARNING_MSG("\n****Erreur****\nRentrez un nom de fichier a charger");   // indique "Erreur" si l'utilisateur rentre juste "load"
+        return 1;
     }
-    else{
-	nom_du_fichier = strdup(token);
-	printf("\nnom du fichier : %s\n",nom_du_fichier);
-    	if((token=get_next_token(inter)) == NULL) return _loadcmd(nom_du_fichier,inter);
-	else{
-	    if(get_type(token)== HEXA){
-		adresse_du_fichier = strdup(token);
-		printf("adresse du fichier = %s \n",adresse_du_fichier);
-		
-	    }
-	    else{
-		WARNING_MSG("\n****Erreur****\nAdresse non valide\n");
-		return 1;
-	    }
-	}
+    else {
+        nom_du_fichier = strdup(token);
+        printf("\nnom du fichier : %s\n",nom_du_fichier);
+        if((token=get_next_token(inter)) == NULL) return _loadcmd(nom_du_fichier,inter);
+        else {
+            if(get_type(token)== HEXA) {
+                adresse_du_fichier = strdup(token);
+                printf("adresse du fichier = %s \n",adresse_du_fichier);
+
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nAdresse non valide\n");
+                return 1;
+            }
+        }
     }
     DEBUG_MSG("Charger ELF à partir d'une adresse n'est pas diponible");
-	return CMD_OK_RETURN_VALUE;
+    return CMD_OK_RETURN_VALUE;
 }
 
 
@@ -302,163 +302,170 @@ int loadcmd(interpreteur inter) {
 
 
 
-int dispcmd(interpreteur inter){
+int dispcmd(interpreteur inter) {
 
     char *token = NULL;
     char *adresse1 = NULL;
     char *adresse2 = NULL;
     //char *registre = NULL;
 
-    if((token = get_next_token(inter)) == NULL){		//l'utilisateur ne rentre rien après disp
-	WARNING_MSG("\n****Erreur****\nIl manque des parametre(mem ou reg)");
-	return 1;
+    if((token = get_next_token(inter)) == NULL) {		//l'utilisateur ne rentre rien après disp
+        WARNING_MSG("\n****Erreur****\nIl manque des parametre(mem ou reg)");
+        return 1;
     }
-       
-    else if(strcmp(token,"mem")==0){			//l'utilisateur veut afficher de la mémoire
-    if((inter->memory)==NULL) {
-    	WARNING_MSG("Mémoire indisponible pour le moment , charger SVP un fichier ELF d'abord");
-    	return 1;
-    	}
-	if((token=get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nRentrez une plage mémoire");
-	    return 1;
-	}
-	else if(get_type(token) == HEXA){     //l'utilisateur veut afficher une plage de mémoire
-	    adresse1=strdup(token);
-	    printf("adresse1 = %s\n",adresse1);
-	    if((token=get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nRentrez ':' puis une 2eme adresse\n");
-		return 1;
-	    }
-	    else if(strcmp(token,":") == 0){
-		if((token=get_next_token(inter)) == NULL){
-		    WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse valide\n");
-		    return 1;
-		}
-		else if(get_type(token) == HEXA){
-		    adresse2=strdup(token);
-		    printf("adresse2 = %s\n",adresse2);
-		    return _dispcmd("plage",inter,adresse1,adresse2);
-		}
-		else{
-		    WARNING_MSG("\n****Erreur****\n2eme adresse non valide");
-		    return 1;
-		}
-	    }
-	    else {
-		WARNING_MSG("\n****Erreur****\nRentrez ':' pour séparer vos 2 adresses");
-		return 1;
-	    }
-	}
-	else if(strcmp(token,"map") == 0){    //affichage du map mémoire
-	    printf("\nAffichage du map mémoire\n");
-	    return _dispcmd(token,inter,NULL,NULL);
-	}
-	else {
-	    WARNING_MSG("\n****Erreur****\nRentrez une plage mémoire");
-	    return 1;
-	}
-	}
-	
 
-    else if(strcmp(token,"reg")==0){			//l'utilisateur veut afficher des registres
-	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nRentrez des registres à afficher");
-	    return 1;
-	}
-	else if(strcmp(token,"all") == 0){	     //l'utilisateur veut afficher tous les registres
-	    printf("appel fonction affichage table de registre\n");
-	    return _dispcmd("all register",inter,NULL,NULL);
-	}
-	
-	else {
-	    while(token != NULL){
-		if(is_reg(token) != 0){
-		    printf("appel fct affiche reg singulier \n");
-		    return _dispcmd("token",inter,NULL,NULL);
-		    token = get_next_token(inter);
-		}
-		else {
-		    WARNING_MSG("\n****Erreur****\nRentrez des noms de registres valides");
-		    return 1;
-		}
-		}
-		}
+    else if(strcmp(token,"mem")==0) {			//l'utilisateur veut afficher de la mémoire
+        if((inter->memory)==NULL) {
+            WARNING_MSG("Mémoire indisponible pour le moment , charger SVP un fichier ELF d'abord");
+            return 1;
+        }
+        if((token=get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nRentrez une plage mémoire");
+            return 1;
+        }
+        else if(get_type(token) == HEXA) {    //l'utilisateur veut afficher une plage de mémoire
+            adresse1=strdup(token);
+            printf("adresse1 = %s\n",adresse1);
+            if((token=get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nRentrez ':' puis une 2eme adresse\n");
+                return 1;
+            }
+            else if(strcmp(token,":") == 0) {
+                if((token=get_next_token(inter)) == NULL) {
+                    WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse valide\n");
+                    return 1;
+                }
+                else if(get_type(token) == HEXA) {
+                    adresse2=strdup(token);
+                    printf("adresse2 = %s\n",adresse2);
+                    return _dispcmd("plage",inter,adresse1,adresse2);
+                }
+                else {
+                    WARNING_MSG("\n****Erreur****\n2eme adresse non valide");
+                    return 1;
+                }
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nRentrez ':' pour séparer vos 2 adresses");
+                return 1;
+            }
+        }
+        else if(strcmp(token,"map") == 0) {   //affichage du map mémoire
+            printf("\nAffichage du map mémoire\n");
+            return _dispcmd(token,inter,NULL,NULL);
+        }
+        else {
+            WARNING_MSG("\n****Erreur****\nRentrez une plage mémoire");
+            return 1;
+        }
+    }
+
+
+    else if(strcmp(token,"reg")==0) {			//l'utilisateur veut afficher des registres
+        if((token = get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nRentrez des registres à afficher");
+            return 1;
+        }
+        else if(strcmp(token,"all") == 0) {	    //l'utilisateur veut afficher tous les registres
+            printf("appel fonction affichage table de registre\n");
+            return _dispcmd("all register",inter,NULL,NULL);
+        }
+
+        else {
+            while(token != NULL) {
+                if(is_reg(token) != 0) {
+                    printf("appel fct affiche reg singulier \n");
+                    return _dispcmd("token",inter,NULL,NULL);
+                    token = get_next_token(inter);
+                }
+                else {
+                    WARNING_MSG("\n****Erreur****\nRentrez des noms de registres valides");
+                    return 1;
+                }
+            }
+        }
     }
 
     else {
-	WARNING_MSG("\n****Erreur****\nRentrez des paramètres valides");
-	return 1;
+        WARNING_MSG("\n****Erreur****\nRentrez des paramètres valides");
+        return 1;
     }
-	printf("NEVER SHOULD BE HERE\n");
-	return 1;
+    printf("NEVER SHOULD BE HERE\n");
+    return 1;
 }
 
 
 
 /* **************************** Commande Disasm *********************************** */
 
-int disasmcmd(interpreteur inter){
-   char *token = NULL;
-   char *adresse1 = NULL;
-   char *adresse2 = NULL;
-   char *decalage = NULL;
+int disasmcmd(interpreteur inter) {
+    char *token = NULL;
+    char *adresse1 = NULL;
+    char *adresse2 = NULL;
+    char *decalage = NULL;
 
 
-    if((token = get_next_token(inter)) == NULL){
-	WARNING_MSG("\n****Erreur****\nRentrez une plage");
-	return 1;
+    if((token = get_next_token(inter)) == NULL) {
+        WARNING_MSG("\n****Erreur****\nRentrez une plage");
+        return 1;
     }
 
-   if(is_hexa(token)){
-	adresse1 = token;
-	printf("\nadresse1 = %s\n",adresse1);
+    if(is_hexa(token)) {
+        adresse1 = token;
+        printf("\nadresse1 = %s\n",adresse1);
 
-	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse ou un décalage");
-	    return 1;
-	}
-	    
+        if((token = get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse ou un décalage");
+            return 1;
+        }
 
-	else if(strcmp(token,":") == 0){
-	    if((token = get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nIl manque une deuxieme adresse");
-		return 1;
-	    }
 
-	    else if(is_hexa(token)){
-		adresse2 = token;
-		printf("adresse2 = %s\n\n",adresse2);
-	    }
-	    else {
-		WARNING_MSG("\n****Erreur****\nDeuxieme adresse non valable");
-		return 1;
-	    }
-	}
-	else if(strcmp(token,"+") == 0) {
-	    if((token = get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nRentrez le decalage souhaite");
-		return 1;
-	    }
-	    else if(is_deci(token)){
-		decalage = token;
-		printf("decalage = %s\n\n",decalage);
-	    }
-	    else{
-		WARNING_MSG("\n****Erreur****\nRentrez un decalage valide");
-		return 1;
-	    }
-	}
-	else{
-	    WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse ou un décalage");
-	    return 1;
-	}
-   }
-   else {
-	WARNING_MSG("\n****Erreur****\nAdresse non valide");
-	return 1;
-	}
-return CMD_OK_RETURN_VALUE;
+        else if(strcmp(token,":") == 0) {
+            if((token = get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nIl manque une deuxieme adresse");
+                return 1;
+            }
+
+            else if(is_hexa(token)) {
+                adresse2 = token;
+                printf("adresse2 = %s\n\n",adresse2);
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nDeuxieme adresse non valable");
+                return 1;
+            }
+        }
+        else if(strcmp(token,"+") == 0) {
+            if((token = get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nRentrez le decalage souhaite");
+                return 1;
+            }
+            else if(is_deci32(token)) {
+                decalage = token;
+                printf("decalage = %s\n\n",decalage);
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nRentrez un decalage valide");
+                return 1;
+            }
+        }
+        else {
+            WARNING_MSG("\n****Erreur****\nRentrez une 2eme adresse ou un décalage");
+            return 1;
+        }
+    }
+    else {
+        WARNING_MSG("\n****Erreur****\nAdresse non valide");
+        return 1;
+    }
+    if (get_next_token(inter)!=NULL){
+    	WARNING_MSG("Plage incorrecte ou terme supplementaire parazite :)");
+    	return 1;
+    	}
+    
+    SEGMENT seg=trouve_segment_nom(".text",inter->memory);
+    return _desasm_cmd(seg, 0 , 0);
+
 
 }
 
@@ -494,7 +501,7 @@ int setcmd(interpreteur inter){
 		WARNING_MSG("\n****Erreur****\nRentrez une adresse hexadecimale");
 		return 1;
 		}
-		
+
 	    else if(get_type(token) == HEXA){
 		adresse = token;
 		DEBUG_MSG("Adresse à modifier = %s",adresse);
@@ -502,7 +509,7 @@ int setcmd(interpreteur inter){
 		    WARNING_MSG("\n****Erreur****\nRentrez la valeur a mettre a cette adresse");
 		    return 1;
 		}
-		
+
 		else if(is_deci(token) == DECI){
 		    valeur = token;
 		    DEBUG_MSG("Nouvelle valeur = %s",valeur);
@@ -531,7 +538,7 @@ int setcmd(interpreteur inter){
 		if((token = get_next_token(inter)) == NULL){
 		    WARNING_MSG("\n****Erreur****\nRentrez la valeur à mettre à cette adresse");
 		    return 1;
-		}	
+		}
 		else if(get_type(token) == DECI){
 		    valeur = strdup(token);
 		    DEBUG_MSG("Nouvelle valeur = %s \n",valeur);
@@ -553,7 +560,7 @@ int setcmd(interpreteur inter){
 	    return 1;
 	}
     }
-	
+
 
 
     else if(strcmp(token,"reg") == 0){
@@ -594,167 +601,167 @@ int setcmd(interpreteur inter){
 return CMD_OK_RETURN_VALUE;
 }*/
 /* ********************** Commande Assert **************************** */
-int assertcmd(interpreteur inter){
+int assertcmd(interpreteur inter) {
     char *token= NULL;
     char *registre = NULL;
     char *valeur = NULL;
     char *adresse = NULL;
-    
-    if((token=get_next_token(inter)) == NULL){
-	WARNING_MSG("\n****Erreur****\nIl manque des paramètres (reg, word ou byte)");
-	return 1;
+
+    if((token=get_next_token(inter)) == NULL) {
+        WARNING_MSG("\n****Erreur****\nIl manque des paramètres (reg, word ou byte)");
+        return 1;
     }
 
-    else if(strcmp(token,"reg") == 0){
-	printf("reg\n");
-	if((token=get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nIl manque le nom d'un registre àco évaluer");
-	    return 1;
-	}
-	else if(is_reg(token) != 0){
-	    registre = token;
-	    printf("registre : %s\n",registre);
-	    if((token=get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
-		return 1;
-	    }
-	    else if(get_type(token) == DECI){
-		valeur = token;
-		printf("valeur a tester: %s\n",valeur);
-	    }
-	}
-	else{
-	   WARNING_MSG("\n****Erreur****\nnom du registre non valide");
-	    return 1;
-	}	
+    else if(strcmp(token,"reg") == 0) {
+        printf("reg\n");
+        if((token=get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nIl manque le nom d'un registre àco évaluer");
+            return 1;
+        }
+        else if(is_reg(token) != 0) {
+            registre = token;
+            printf("registre : %s\n",registre);
+            if((token=get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
+                return 1;
+            }
+            else if(get_type(token) == DECI) {
+                valeur = token;
+                printf("valeur a tester: %s\n",valeur);
+            }
+        }
+        else {
+            WARNING_MSG("\n****Erreur****\nnom du registre non valide");
+            return 1;
+        }
     }
-    else if(strcmp(token,"word") == 0){					//l'utilisatuer veut évaluer un word
-	printf("word\n");
-	if((token=get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nIl manque l'adresse du word a evaluer");
-	    return 1;
-	}
-	else if(get_type(token) == HEXA){				//l'adresse est bien en hexa
-	    adresse = token;
-	    printf("adresse du word : %s\n",adresse);
-	    if((token=get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
-		return 1;
-	    }
-	    else if(get_type(token) == DECI){
-		valeur = token;
-		printf("valeur a tester : %s\n",valeur);
-	    }
-	    else{
-		WARNING_MSG("\n****Erreur****\nValeur non valide");
-		return 1;
-	    }
-	}
-	else{
-	    WARNING_MSG("\n****Erreur****\nAdresse non valide");
-	    return 1;
-	}
+    else if(strcmp(token,"word") == 0) {					//l'utilisatuer veut évaluer un word
+        printf("word\n");
+        if((token=get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nIl manque l'adresse du word a evaluer");
+            return 1;
+        }
+        else if(get_type(token) == HEXA) {				//l'adresse est bien en hexa
+            adresse = token;
+            printf("adresse du word : %s\n",adresse);
+            if((token=get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
+                return 1;
+            }
+            else if(get_type(token) == DECI) {
+                valeur = token;
+                printf("valeur a tester : %s\n",valeur);
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nValeur non valide");
+                return 1;
+            }
+        }
+        else {
+            WARNING_MSG("\n****Erreur****\nAdresse non valide");
+            return 1;
+        }
     }
-    else if(strcmp(token,"byte") == 0){					//l'utilisateur veut évaluer un byte
-	printf("byte\n");
-	if((token=get_next_token(inter)) == NULL){
-	    WARNING_MSG("\n****Erreur****\nIl manque l'adresse du byte a evaluer");
-	    return 1;
-	}
-	else if(get_type(token) == HEXA){				//l'adresse est bien en hexa
-	    adresse = token;
-	    printf("adresse du byte : %s\n",adresse);
-	    if((token=get_next_token(inter)) == NULL){
-		WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
-		return 1;
-	    }
-	    else if(get_type(token) == DECI){
-		valeur = token;
-		printf("valeur a tester : %s\n",valeur);
-	    }
-	    else{
-		WARNING_MSG("\n****Erreur****\nValeur non valide");
-		return 1;
-	    }
-	}
-	else{
-	    WARNING_MSG("\n****Erreur****\nAdresse non valide");
-	    return 1;
-	}
+    else if(strcmp(token,"byte") == 0) {					//l'utilisateur veut évaluer un byte
+        printf("byte\n");
+        if((token=get_next_token(inter)) == NULL) {
+            WARNING_MSG("\n****Erreur****\nIl manque l'adresse du byte a evaluer");
+            return 1;
+        }
+        else if(get_type(token) == HEXA) {				//l'adresse est bien en hexa
+            adresse = token;
+            printf("adresse du byte : %s\n",adresse);
+            if((token=get_next_token(inter)) == NULL) {
+                WARNING_MSG("\n****Erreur****\nIl manque la valeur a tester");
+                return 1;
+            }
+            else if(get_type(token) == DECI) {
+                valeur = token;
+                printf("valeur a tester : %s\n",valeur);
+            }
+            else {
+                WARNING_MSG("\n****Erreur****\nValeur non valide");
+                return 1;
+            }
+        }
+        else {
+            WARNING_MSG("\n****Erreur****\nAdresse non valide");
+            return 1;
+        }
     }
-return CMD_OK_RETURN_VALUE;
+    return CMD_OK_RETURN_VALUE;
 }
 
 //***********************Commandes  Debug+ resume :-------------
 
 
-int debugcmd(interpreteur inter){
-  DEBUG_MSG("Chaine : %s", inter->input);
-  char* token = NULL;
-  if((token = get_next_token(inter))==NULL) {
-    INFO_MSG("interruption de l'execution et remise de main au user");
-    return CMD_OK_RETURN_VALUE ;
-  }
-    else WARNING_MSG("commande incorrecte");
-  return 1;
-}
-  
-
-int resumecmd(interpreteur inter){
-  DEBUG_MSG("Chaine : %s", inter->input);
-  char* token = NULL;
-  if((token = get_next_token(inter))==NULL) {
-    if(inter->mode==2) {
-      printf ("reprise de l'execution du script");
-      return CMD_OK_RETURN_VALUE ;
+int debugcmd(interpreteur inter) {
+    DEBUG_MSG("Chaine : %s", inter->input);
+    char* token = NULL;
+    if((token = get_next_token(inter))==NULL) {
+        INFO_MSG("interruption de l'execution et remise de main au user");
+        return CMD_OK_RETURN_VALUE ;
     }
-    else printf("Pas de mode DEBUG ");
-    return CMD_OK_RETURN_VALUE ;
-  } 
-  else WARNING_MSG("commande incorrecte");
-  return 1;
-  }
+    else WARNING_MSG("commande incorrecte");
+    return 1;
+}
+
+
+int resumecmd(interpreteur inter) {
+    DEBUG_MSG("Chaine : %s", inter->input);
+    char* token = NULL;
+    if((token = get_next_token(inter))==NULL) {
+        if(inter->mode==2) {
+            printf ("reprise de l'execution du script");
+            return CMD_OK_RETURN_VALUE ;
+        }
+        else printf("Pas de mode DEBUG ");
+        return CMD_OK_RETURN_VALUE ;
+    }
+    else WARNING_MSG("commande incorrecte");
+    return 1;
+}
 
 //***********************Commande run : -----------------------------------
-int runcmd(interpreteur inter){
-  char* token = NULL;
-  char token1[500];
-  //DEBUG_MSG("Chaine : %s", inter->input);
+int runcmd(interpreteur inter) {
+    char* token = NULL;
+    char token1[500];
+    //DEBUG_MSG("Chaine : %s", inter->input);
 
-  if((token = get_next_token(inter))==NULL) {
-    INFO_MSG("Execute from adress saved in the current PC value ");
-    return CMD_OK_RETURN_VALUE;
+    if((token = get_next_token(inter))==NULL) {
+        INFO_MSG("Execute from adress saved in the current PC value ");
+        return CMD_OK_RETURN_VALUE;
     }
-  
-  if (token!=NULL) strncpy(token1,token,500);
-  if(is_hexa(token) && ((token = get_next_token(inter))==NULL)){
-    INFO_MSG("Execute from this adress %s",token1) ;
-    return CMD_OK_RETURN_VALUE ;
+
+    if (token!=NULL) strncpy(token1,token,500);
+    if(is_hexa(token) && ((token = get_next_token(inter))==NULL)) {
+        INFO_MSG("Execute from this adress %s",token1) ;
+        return CMD_OK_RETURN_VALUE ;
     }
-  
-  WARNING_MSG("false Command ");
-  return 1;
+
+    WARNING_MSG("false Command ");
+    return 1;
 }
 
 //********** Commande step : -----------------------------------------------
-int stepcmd(interpreteur inter){
-  char* token = NULL;
-  //char token1[500];
-  //DEBUG_MSG("Chaine : %s", inter->input);
+int stepcmd(interpreteur inter) {
+    char* token = NULL;
+    //char token1[500];
+    //DEBUG_MSG("Chaine : %s", inter->input);
 
-  if((token = get_next_token(inter))==NULL) {
-    INFO_MSG("Avancement jusqu'à l'instruction de retour ");
-    return CMD_OK_RETURN_VALUE ;
-     }
-  
-  else if(strcmp( token ,"into")==0){
-    INFO_MSG("Execute one instruction") ;
-    return CMD_OK_RETURN_VALUE ;
+    if((token = get_next_token(inter))==NULL) {
+        INFO_MSG("Avancement jusqu'à l'instruction de retour ");
+        return CMD_OK_RETURN_VALUE ;
     }
-  
-  else WARNING_MSG("false Command  ");
-  return 1;
-  
+
+    else if(strcmp( token ,"into")==0) {
+        INFO_MSG("Execute one instruction") ;
+        return CMD_OK_RETURN_VALUE ;
+    }
+
+    else WARNING_MSG("false Command  ");
+    return 1;
+
 }
 
 
@@ -795,13 +802,13 @@ int execute_cmd(interpreteur inter) {
     }
 
 
-   
+
     else if(strcmp(token,"load")==0) {
-	return loadcmd(inter);
+        return loadcmd(inter);
     }
 
-    else if(strcmp(token,"disp")==0){
-	return dispcmd(inter);
+    else if(strcmp(token,"disp")==0) {
+        return dispcmd(inter);
     }
 
 
@@ -809,34 +816,34 @@ int execute_cmd(interpreteur inter) {
         return testcmd(inter);
     }
 
-    else if(strcmp(token,"disasm") ==0 ){
-	return disasmcmd(inter);
+    else if(strcmp(token,"disasm") ==0 ) {
+        return disasmcmd(inter);
     }
-/*
-    else if(strcmp(token,"set") == 0){
-	return setcmd(inter);
-    }*/
+    /*
+        else if(strcmp(token,"set") == 0){
+    	return setcmd(inter);
+        }*/
 
-    else if(strcmp(token,"assert") == 0){
-	return assertcmd(inter);
-    }
-     
-    else if(strcmp(token,"step") == 0){
-	return stepcmd(inter);
+    else if(strcmp(token,"assert") == 0) {
+        return assertcmd(inter);
     }
 
-    else if(strcmp(token,"run") == 0){
-	return runcmd(inter);
-    }
-    
-    else if(strcmp(token,"debug") == 0){
-	return debugcmd(inter);
+    else if(strcmp(token,"step") == 0) {
+        return stepcmd(inter);
     }
 
-    else if(strcmp(token,"resume") == 0){
-	return resumecmd(inter);
+    else if(strcmp(token,"run") == 0) {
+        return runcmd(inter);
     }
-    
+
+    else if(strcmp(token,"debug") == 0) {
+        return debugcmd(inter);
+    }
+
+    else if(strcmp(token,"resume") == 0) {
+        return resumecmd(inter);
+    }
+
     WARNING_MSG("Unknown Command : '%s'\n", cmdStr);
     return CMD_UNKOWN_RETURN_VALUE;
 

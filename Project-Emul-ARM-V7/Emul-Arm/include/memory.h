@@ -45,6 +45,7 @@ unsigned int maxvalue(unsigned int i,unsigned int j);
 
 void affiche_section(char* name, unsigned int start, char* content, unsigned int taille);
   
+  SEGMENT trouve_segment_nom(char*s, MAPMEM map);
 
 
 #endif

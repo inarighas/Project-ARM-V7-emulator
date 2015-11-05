@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * @file emulARM.c
  * @author François Cayre, Nicolas Castagné, François Portet
  * @brief Main pour le début du projet émulateur.
@@ -12,7 +12,7 @@
 
 /**
  * @param in Input line (possibly very badly written).
- * @param out Line in a suitable form for further analysis. 
+ * @param out Line in a suitable form for further analysis.
  * @return nothing
  * @brief This function will prepare a line for further analysis.
  *
