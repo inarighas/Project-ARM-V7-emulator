@@ -1,3 +1,5 @@
+//Fichier Source Commande
+//Implantation des commandes de l'interpreteur
 
 #include "commandes.h"
 
@@ -238,3 +240,17 @@ int _setcmd_reg(interpreteur inter,char* endroit,unsigned int valeur){			// Modi
 		}*/
 /*}*/
 
+
+
+//Commande Assert----
+int _assert_cmd(char* string, char* type , char* val){
+	
+	
+	if (string==NULL || type==NULL || val==NULL) {
+		WARNING_MSG("Erreur command assert");
+		return 1;
+		}
+		
+	
+	return CMD_OK_RETURN_VALUE;
+	}

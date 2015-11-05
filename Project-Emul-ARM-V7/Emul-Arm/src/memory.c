@@ -16,7 +16,7 @@ MAPMEM init_memory_arm(void) {
     MAPMEM p=NULL;
     int i=0;
     if((p=calloc(NBSEG,sizeof(*p)))==NULL) {
-        WARNING_MSG("Erreur Allocation init_mem\n");
+        WARNING_MSG("Erreur Allocation init_mem");
         return NULL;
     }
     for(i=0; i<NBSEG; i++) {
@@ -31,7 +31,7 @@ MAPMEM init_memory_arm(void) {
 SEGMENT init_segment(char* name,unsigned int adr,unsigned int size_max) {
     SEGMENT p;
     if((p=calloc(1,sizeof(*p)))==NULL) {
-        WARNING_MSG("erreur init segment\n");
+        WARNING_MSG("erreur init segment");
         return NULL;
     }
     p->flag= 0;
@@ -54,7 +54,7 @@ SEGMENT inc_segment(SEGMENT seg) {
     int i;      //used
 
     if((seg->taille)>=(seg->taille_max)) {
-        INFO_MSG("full segment {%s} \n",seg->nom);
+        INFO_MSG("full segment {%s} ",seg->nom);
         return seg;
     }
 
@@ -79,7 +79,7 @@ SEGMENT  dec_segment(SEGMENT seg) {
     char* cm;
     int i;
     if((seg->taille)<1) {
-        INFO_MSG("empty segment {%s} \n",seg->nom);
+        INFO_MSG("empty segment {%s} ",seg->nom);
         return seg;
     }
 
@@ -109,19 +109,19 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
     }
 
     if (dep>arr) {
-        DEBUG_MSG("adresse de départ apres arrivee\n");
+        DEBUG_MSG("adresse de départ apres arrivee");
         return;
     }
 
     if(hexdep==NULL && hexarr==NULL) {
-        DEBUG_MSG("**affichage complet**\n");
+        DEBUG_MSG("**affichage complet**");
         affiche_section((seg->nom), (seg->adresse_initiale), (seg->contenu),(seg->taille));
         puts(" ");
         return;
     }
 
     else if(dep<(seg->adresse_initiale)) {
-        DEBUG_MSG("Erreur depart avt segment\n");
+        DEBUG_MSG("Erreur depart avt segment");
         sprintf(s,"%x ",seg->adresse_initiale);
         affiche_segment(seg ,s, hexarr);
         return ;
@@ -129,14 +129,14 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
 
     else if(dep<=(seg->adresse_initiale) && (arr-dep)>(seg->taille)) {
         //printf("Erreur arrivee apres segment\n");
-        DEBUG_MSG("Affichage du segment entier\n");
+        DEBUG_MSG("Affichage du segment entier");
         affiche_segment(seg ,NULL, NULL);
         return ;
     }
 
     else if(dep<=(seg->adresse_initiale) && (arr-dep)<=(seg->taille)) {
         //printf("Erreur arrivee apres segment\n");
-        DEBUG_MSG("Affichage du segment jusquà larrivée\n");
+        DEBUG_MSG("Affichage du segment jusquà larrivée");
         /*for (i=0 ; i<(arr-dep+1); i++){
         	printf("%x ",seg->contenu[i]);
         	}*/
@@ -146,7 +146,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
     }
 
     else if(dep>(seg->adresse_initiale) && (arr-dep)<=(seg->taille)) {
-        DEBUG_MSG("Départ au milieu du seg\n");
+        DEBUG_MSG("Départ au milieu du seg");
         /*for (i=dep ; i<(arr-dep+1); i++){
         	printf("%x ",seg->contenu[i]);
         	}*/
@@ -165,7 +165,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
         return;
     }
 
-    else WARNING_MSG("should never be here - affiche segment\n");
+    else WARNING_MSG("should never be here - affiche segment");
     return;
 }
 
@@ -192,12 +192,12 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
     //if(hex!=NULL) hexval=strtol(hex,NULL,16);
 
     if (hexval<(seg->adresse_initiale)) {
-        WARNING_MSG("case introuvable dans ce segment {%s} \n",seg->nom);
+        WARNING_MSG("case introuvable dans ce segment {%s} ",seg->nom);
         return NULL;
     }
 
     else if (hexval>(seg->adresse_initiale)+(seg->taille_max)) {
-        WARNING_MSG("case introuvable dans ce segment{%s} \n",seg->nom);
+        WARNING_MSG("case introuvable dans ce segment{%s} ",seg->nom);
         return NULL;
     }
 
@@ -221,7 +221,7 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
     }
 
     else {
-        WARNING_MSG("Never Should be Here\n");
+        WARNING_MSG("Never Should be Here");
         return NULL;
     }
 }
@@ -233,7 +233,7 @@ SEGMENT change_val_seg(SEGMENT seg,unsigned int hexval, char val) {
     char *str;//[seg->taille_max];
     str=get_byte_seg(seg,hexval);
     if(str==NULL) {
-        WARNING_MSG("Opération impossible\n");
+        WARNING_MSG("Opération impossible");
         return seg;
     }
     *str=val;
@@ -256,15 +256,15 @@ SEGMENT change_plage_seg(SEGMENT seg, unsigned int dep, unsigned int arr , char*
     	}*/
 
     if (dep>arr) {
-        DEBUG_MSG("adresse de départ apres arrivee\n");
+        DEBUG_MSG("adresse de départ apres arrivee");
         return seg;
     }
 
     if(strlen(val)<(arr-dep)) {
-        WARNING_MSG("Zone plus large que les données\n Modification selon largeur donnée\n");
+        DEBUG_MSG("Zone plus large que les données\n Modification selon largeur donnée");
         arr=dep+strlen(val);
     }
-    if(strlen(val)>(arr-dep)) printf("Seul la plage indiquée sera modifiée\n");
+    if(strlen(val)>(arr-dep)) DEBUG_MSG("Seul la plage indiquée sera modifiée");
 
     printf("%X \n",seg->taille);
     i=0;
@@ -277,7 +277,7 @@ SEGMENT change_plage_seg(SEGMENT seg, unsigned int dep, unsigned int arr , char*
 
     str=get_byte_seg(seg,dep);
     if (str==NULL) {
-        printf("Erreur fct get byte seg \n");
+        WARNING_MSG("Erreur fct get byte seg");
         return seg;
     }
 

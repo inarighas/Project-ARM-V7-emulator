@@ -1,3 +1,6 @@
+//Code source pour le désassemblage
+//Implatation de la commande disasm 
+
 #include "desasm.h"
 
 
@@ -213,7 +216,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	
 		affiche_segment(seg, NULL, NULL);
 		
-		printf("\nidentifiant : %s\nmnemonique : %s\ntaille : %d bits\nmasque : %x\nsignature : %x\nNombre d'operande : %d\n",dico[indice].identifiant, dico[indice].mnemo, dico[indice].taille, dico[indice].masque, dico[indice].signature, dico[indice].nb_operande);
+		//printf("\nidentifiant : %s\nmnemonique : %s\ntaille : %d bits\nmasque : %x\nsignature : %x\nNombre d'operande : %d\n",dico[indice].identifiant, dico[indice].mnemo, dico[indice].taille, dico[indice].masque, dico[indice].signature, dico[indice].nb_operande);
 		
 		
 		//affiche_segment(seg, NULL, NULL);
