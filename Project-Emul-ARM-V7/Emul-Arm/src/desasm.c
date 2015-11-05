@@ -187,7 +187,18 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		}
 	
 	while(success == 0 && !feof(fichier)){
-		fscanf(fichier,"%s %s %d %X %X %d %d %d %s %s",dico[indice].identifiant, dico[indice].mnemo, &dico[indice].taille,&dico[indice].signature, &dico[indice].masque,  &dico[indice].nb_operande, &dico[indice].typeop1, &dico[indice].typeop2, dico[indice].champop1, dico[indice].champop2);						
+		fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",dico[indice].identifiant, dico[indice].mnemo, 
+			&dico[indice].taille,&dico[indice].signature, &dico[indice].masque,  
+			&dico[indice].nb_operande, 
+			&dico[indice].typeop1,
+			&dico[indice].typeop2,
+			&dico[indice].typeop3,
+			&dico[indice].typeop4, 
+			dico[indice].champop1,
+			dico[indice].champop2,
+			dico[indice].champop3,
+			dico[indice].champop4);
+
 		//--------------------------------------------------> NE PAS OUBLIER LORDRE !!!!!!!
 
 		
@@ -207,7 +218,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		
 		//affiche_segment(seg, NULL, NULL);
 		//switch case suivant nombre d'opérandes
-		/*switch (dico[indice].nb_operande) {
+		switch (dico[indice].nb_operande) {
 			case 1:
 				printf ("\t \t----> %s \t ",dico[indice].mnemo);
 				switch (dico[indice].typeop1) {
@@ -257,12 +268,53 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				break;
 				
 			case 3:
-				printf("cas 3 op \n");
-				return 1;
+				printf ("\t \t----> %s \t",dico[indice].mnemo);
+				switch (dico[indice].typeop1) {
+					case 1:
+						printf("%s",registre_extract(dico[indice].champop1 , code));
+						break;
+					case 2:
+						printf("%X",immediate(dico[indice].champop1 , code));
+						break;
+					default:
+						printf("NEVER SHOULD BE HERE\n");
+						return 1;
+						break;
+					}
+				printf(" , ");
+				
+				switch (dico[indice].typeop2) {
+					case 1:
+						printf("%s",registre_extract(dico[indice].champop2 , code));
+						break;
+					case 2:
+						printf("%X",immediate(dico[indice].champop2 , code));
+						break;
+					default:
+						printf("NEVER SHOULD BE HERE\n");
+						return 1;
+						break;
+					}
+				printf(" , ");
+				
+				switch (dico[indice].typeop3) {
+					case 1:
+						printf("%s",registre_extract(dico[indice].champop3 , code));
+						break;
+					case 2:
+						printf("%X",immediate(dico[indice].champop3 , code));
+						break;
+					default:
+						printf("NEVER SHOULD BE HERE\n");
+						return 1;
+						break;
+					}	
+				puts(" ");
+				
 				break;
 			
 			case 4:
-				printf("cas 4 op \n");
+				DEBUG_MSG("cas 4 op -- pas encore pret \n");
 				return 1;
 				break;
 				
@@ -270,7 +322,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				printf("cas op inconnu \n");
 				return 1;
 				break;
-			}*/
+			}
 		}
 			
 	else if (success==0) {

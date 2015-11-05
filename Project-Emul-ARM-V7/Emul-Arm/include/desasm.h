@@ -9,8 +9,8 @@
 #include "memory.h"
 #include "registre.h"
 
-#define DICO32 "Dico32.txt"
-#define DICO16 "Dico16.txt"
+#define DICO32 "dicos/dicos_champs/Dico32.txt"
+#define DICO16 "dicos/dicos_champs/Dico16.txt"
 #define NB 1
 
 
@@ -23,8 +23,12 @@ typedef struct
 	int nb_operande;					// On se limite à deux opérandes pour le moment
 	int typeop1;
 	int typeop2;
+	int typeop3;
+	int typeop4;
 	char champop1[20];
 	char champop2[20];
+	char champop3[20];
+	char champop4[20];
 	
 }TYPE_INST;
 
