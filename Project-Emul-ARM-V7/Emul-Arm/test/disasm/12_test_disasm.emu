@@ -1,0 +1,7 @@
+#-------
+#TEST_RETURN_CODE=FAIL           
+#TEST_COMMENT="Teste disasm décalage trop grand"
+#-------
+
+
+disasm 0x5000+1000000000000

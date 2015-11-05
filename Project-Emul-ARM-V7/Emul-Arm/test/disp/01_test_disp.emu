@@ -1,6 +1,6 @@
 #-------
 TEST_RETURN_CODE=PASS         
-#EST_COMMENT="Test chargement standard"
+TEST_COMMENT="Test chargement standard"
 #-------
 
 

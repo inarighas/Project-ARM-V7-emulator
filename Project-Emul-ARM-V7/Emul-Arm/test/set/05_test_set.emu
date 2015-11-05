@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test set reg sans paramètre"
+#-------
+
+set reg

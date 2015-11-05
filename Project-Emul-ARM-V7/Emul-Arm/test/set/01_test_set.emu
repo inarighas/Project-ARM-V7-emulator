@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=PASS         
+TEST_COMMENT="Test chargement standard"
+#-------
+
+set mem byte 0x5000 8

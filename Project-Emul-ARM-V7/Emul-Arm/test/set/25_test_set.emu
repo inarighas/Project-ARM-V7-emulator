@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem byte trop de paramètre"
+#-------
+
+set mem byte 0x5000 8 toto

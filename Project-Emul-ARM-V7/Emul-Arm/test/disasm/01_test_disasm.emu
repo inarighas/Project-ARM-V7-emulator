@@ -1,0 +1,6 @@
+#-------
+#TEST_RETURN_CODE=FAIL           
+#TEST_COMMENT="Teste disasm sans paramètre"
+#-------
+
+disasm

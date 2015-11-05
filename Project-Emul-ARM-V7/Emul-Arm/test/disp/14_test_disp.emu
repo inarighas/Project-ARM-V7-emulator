@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL
+TEST_COMMENT="Test disp mem paramètre en trop"
+#-------
+
+
+disp mem 0x5000:0x6000 toto

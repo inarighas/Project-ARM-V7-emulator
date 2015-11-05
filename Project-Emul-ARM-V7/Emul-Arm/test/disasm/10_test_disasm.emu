@@ -1,0 +1,7 @@
+#-------
+#TEST_RETURN_CODE=FAIL           
+#TEST_COMMENT="Teste disasm pas de décalage"
+#-------
+
+
+disasm 0x5000+

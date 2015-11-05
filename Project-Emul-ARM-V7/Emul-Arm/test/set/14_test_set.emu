@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem word sans paramètre"
+#-------
+
+set mem word
