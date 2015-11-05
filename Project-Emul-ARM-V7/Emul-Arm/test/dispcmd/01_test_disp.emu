@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=PASS         
+#EST_COMMENT="Test chargement standard"
+#-------
+
+
+disp mem map

@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+#EST_COMMENT="Test chargement fichier introuvable"
+#-------
+
+load bocle.o

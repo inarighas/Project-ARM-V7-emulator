@@ -6,5 +6,7 @@ DEPENDANCE = desassembleur.o memory.o registre.o
 
 $(CIBLE): $(DEPENDANCE)
 	gcc -o $(CIBLE) -g $(DEPENDANCE)
-	rm  *.o *.~
+	
+clean:
+	rm -v  *.o *.~ *.orig testdesasm
 

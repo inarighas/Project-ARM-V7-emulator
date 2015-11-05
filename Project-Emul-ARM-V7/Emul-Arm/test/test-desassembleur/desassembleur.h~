@@ -9,8 +9,8 @@ typedef struct
 	int taille;
 	unsigned int masque, signature;
 	int nb_operande;					// On se limite à deux opérandes pour le moment
-	int typeop1;
-	int typeop2;
+	char typeop1;
+	char typeop2;
 	char champop1[20];
 	char champop2[20];
 	
