@@ -281,7 +281,7 @@ int loadcmd(interpreteur inter) {
     else {
         nom_du_fichier = strdup(token);
         printf("\nnom du fichier : %s\n",nom_du_fichier);
-        if((token=get_next_token(inter)) == NULL) return _loadcmd(nom_du_fichier,inter);
+        if((token=get_next_token(inter)) == NULL)return _loadcmd(nom_du_fichier,inter);
         else {
             if(get_type(token)== HEXA) {
                 adresse_du_fichier = strdup(token);

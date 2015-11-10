@@ -13,6 +13,22 @@
 #define DICO16 "dicos/dicos_champs/Dico16.txt"
 #define NB 1
 
+#define EQ 0x0
+#define NE 0x1
+#define CS 0x2
+#define CC 0x3
+#define MI 0x4
+#define PL 0x5
+#define VS 0x6
+#define VC 0x7
+#define HI 0x8
+#define LS 0x9
+#define GE 0xA
+#define LT 0xB
+#define GT 0xC
+#define LE 0xD
+#define AL 0xE
+
 
 typedef struct 
 {

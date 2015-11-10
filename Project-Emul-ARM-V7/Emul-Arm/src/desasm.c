@@ -39,7 +39,13 @@ unsigned int immediate (char* s ,unsigned int code){
 	unsigned int debut,fin,val; 
 	unsigned int nb_bits;
 	char* token;
-	token = strtok(s,":");
+	char* str=strdup(s);
+	token = strtok(str,":");
+	if (token==NULL) {
+			ERROR_MSG("Problème lors de la concaténation");
+			return 0;
+		}
+
 	val=0;
 	
 	do{
@@ -71,7 +77,34 @@ char* registre_extract(char* s , unsigned int code){
 		--> 
 
 */
+void cond(TYPE_INST *instruction, unsigned int code){
+	unsigned int condition =0;
+	char* champ;
+	if(strcmp(instruction->mnemo,"B") == 0){
+		champ=strdup("11-8");
+		condition = immediate("11-8",code);
+		if(condition == EQ)strcpy(instruction->mnemo,"BEQ");
+		if(condition == NE)strcpy(instruction->mnemo,"BNE");
+		if(condition == CS)strcpy(instruction->mnemo,"BCS");
+		if(condition == CC)strcpy(instruction->mnemo,"BCC");
+		if(condition == MI)strcpy(instruction->mnemo,"BMI");
+		if(condition == PL)strcpy(instruction->mnemo,"BPL");
+		if(condition == VS)strcpy(instruction->mnemo,"BVS");
+		if(condition == VC)strcpy(instruction->mnemo,"BVC");
+		if(condition == HI)strcpy(instruction->mnemo,"BHI");
+		if(condition == LS)strcpy(instruction->mnemo,"BLS");
+		if(condition == GE)strcpy(instruction->mnemo,"BGE");
+		if(condition == LT)strcpy(instruction->mnemo,"BLT");
+		if(condition == GT)strcpy(instruction->mnemo,"BGT");
+		if(condition == LE)strcpy(instruction->mnemo,"BLE");
+		if(condition == AL)strcpy(instruction->mnemo,"BAL");	
+	}
+	return;
+}
+
 int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
+
+	printf("\n\nLancement de _desasm_cmd\n\n");
 
 	FILE *fichier = NULL;
 	TYPE_INST* dico=NULL;
@@ -91,6 +124,14 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	char *arr=NULL;
 	
 	dico=calloc(NB,sizeof(*dico));				// structure retournée par la fonction de décodage
+
+	/************************************************************************************************************/
+	/*char* cond[15] = {"EQ","NE","CS","CC","MI","PL","VS","VC","HI","LS","GE","LT","GT","LE","AL"};
+
+	typedef struct {}*/
+
+
+	/************************************************************************************************************/
 	
 	if (seg==NULL) {
 		WARNING_MSG("Segment inexistant pour desassembler");
@@ -139,7 +180,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				//CAS INTERUCTION 32 BITS//
 	
 	if(is_32( step+1) == 1) {
-		DEBUG_MSG("-Instruction sur 32 bits- \n");
+		DEBUG_MSG("-Instruction sur 32 bits-");
 		fichier = fopen(DICO32,"r"); 			// Ouverture du dictionnaire à instruction 32 
 		
 	
@@ -160,13 +201,13 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		code32 |= ((*(step+2)	<< 0 )&(0x000000FF));
 		code = code32;
 		pas = 4;
-		INFO_MSG("CODE : %X\n",code);
+		INFO_MSG("CODE : %X",code);
 		}
 	
 				
 				//CAS INSTRUCTION 16 BITS//
 	else if (is_32(step+1) == 0){
-	DEBUG_MSG("-Instruction sur 16 bits- \n");
+	DEBUG_MSG("-Instruction sur 16 bits-");
 		fichier = fopen(DICO16,"r"); 			// Ouverture du dictionnaire à instruction 16
 		
 		// Test etat ouverture dictionnaire----------------------------------------------
@@ -181,14 +222,14 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		
 		code = code16;
 		pas = 2;
-		INFO_MSG("CODE : %X\n",code);
+		INFO_MSG("CODE : %X",code);
 		}
 	
 	else {
 		WARNING_MSG("Erreur identification de l'instruction");
 		return 1;
 		}
-	
+
 	while(success == 0 && !feof(fichier)){
 		fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",dico[indice].identifiant, dico[indice].mnemo, 
 			&dico[indice].taille,&dico[indice].signature, &dico[indice].masque,  
@@ -202,7 +243,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 			dico[indice].champop3,
 			dico[indice].champop4);
 
-		//--------------------------------------------------> NE PAS OUBLIER LORDRE !!!!!!!
+		//--------------------------------------------------> NE PAS OUBLIER L'ORDRE !!!!!!!
 
 		
 		if( (dico[indice].signature & dico[indice].masque) == (code & dico[indice].masque) ){
@@ -211,10 +252,14 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		}
 		ligne++;
 	}
+	DEBUG_MSG("mnemo = %s , ligne 266",dico[indice].mnemo);
+	cond(dico+indice, code);
+	DEBUG_MSG("mnemo = %s , ligne 268",dico[indice].mnemo);
 
 	if (success==1) {
 	
 		affiche_segment(seg, NULL, NULL);
+
 		
 		//printf("\nidentifiant : %s\nmnemonique : %s\ntaille : %d bits\nmasque : %x\nsignature : %x\nNombre d'operande : %d\n",dico[indice].identifiant, dico[indice].mnemo, dico[indice].taille, dico[indice].masque, dico[indice].signature, dico[indice].nb_operande);
 		
@@ -226,10 +271,10 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				printf ("\t \t----> %s \t ",dico[indice].mnemo);
 				switch (dico[indice].typeop1) {
 					case 1:
-						printf("%s",registre_extract(dico[indice].champop1 , code));
+						printf("%s\n\n\n",registre_extract(dico[indice].champop1 , code));
 						break;
 					case 2:
-						printf("%X",immediate(dico[indice].champop1 , code));
+						printf("%X\n\n\n",immediate(dico[indice].champop1 , code));
 						break;
 					default:
 						printf("NEVER SHOULD BE HERE\n");
@@ -243,6 +288,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				switch (dico[indice].typeop1) {
 					case 1:
 						printf("%s",registre_extract(dico[indice].champop1 , code));
+
 						break;
 					case 2:
 						printf("%X",immediate(dico[indice].champop1 , code));
@@ -256,10 +302,10 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				
 				switch (dico[indice].typeop2) {
 					case 1:
-						printf("%s",registre_extract(dico[indice].champop2 , code));
+						printf("%s\n\n\n",registre_extract(dico[indice].champop2 , code));
 						break;
 					case 2:
-						printf("%X",immediate(dico[indice].champop2 , code));
+						printf("%X\n\n\n",immediate(dico[indice].champop2 , code));
 						break;
 					default:
 						printf("NEVER SHOULD BE HERE\n");
@@ -302,10 +348,10 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				
 				switch (dico[indice].typeop3) {
 					case 1:
-						printf("%s",registre_extract(dico[indice].champop3 , code));
+						printf("%s\n\n\n",registre_extract(dico[indice].champop3 , code));
 						break;
 					case 2:
-						printf("%X",immediate(dico[indice].champop3 , code));
+						printf("%X\n\n\n",immediate(dico[indice].champop3 , code));
 						break;
 					default:
 						printf("NEVER SHOULD BE HERE\n");
@@ -327,7 +373,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 				break;
 			}
 		}
-			
+		
 	else if (success==0) {
 		WARNING_MSG("####Commande "" introuvable#### ");
 		WARNING_MSG("#ARRET DE DESASSEMBLAGE# ");
@@ -341,8 +387,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	success=0;
 	i++;
 	
-	}
-		
+	}		
 	free(dico);
 	return CMD_OK_RETURN_VALUE;
  
