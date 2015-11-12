@@ -18,15 +18,7 @@ int is_32(char*instr_ptr){
 	
 	unsigned int a = (*instr_ptr) & mask;
 	 
-/*
-	a= (*instr_ptr) - 232 ;
-	if (a<8 && a>=0) return 1;
 
-	a= (*instr_ptr) - 240 ;
-	if (a<8 && a>=0) return 1;
-
-	a= (*instr_ptr) - 248 ;
-	if (a<8 && a>=0) return 1;*/
 	if (a == (mask & 0xE8)) return 1;
 	if (a == (mask & 0xF0)) return 1;
 	if (a == (mask & 0xF8)) return 1;
@@ -56,7 +48,7 @@ unsigned int immediate (char* s ,unsigned int code){
 		}
 	while((token = strtok(NULL,":"))!=NULL);
 	return val;
-	}
+}
 
 
 
@@ -102,12 +94,106 @@ void cond(TYPE_INST *instruction, unsigned int code){
 	return;
 }
 
+int affiche_instruction_1operande(DESASM_INST* stockage_inst, int indice, unsigned int code){
+	printf ("\t \t----> %s \t ",stockage_inst[indice].inst->mnemo);
+	switch (stockage_inst[indice].inst->typeop1) {
+		case 1:
+			printf("%s\n\n\n",registre_extract(stockage_inst[indice].inst->champop1, code));
+			break;
+		case 2:
+			printf("%X\n\n\n",immediate(stockage_inst[indice].inst->champop1, code));
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+	return 0;
+	}
+}
+
+
+int affiche_instruction_2operandes(DESASM_INST* stockage_inst, int indice, unsigned int code){
+
+	printf ("\t \t----> %s \t",stockage_inst[indice].inst->mnemo);
+	switch (stockage_inst[indice].inst->typeop1) {
+		case 1:
+			printf("%s",registre_extract(stockage_inst[indice].inst->champop1 , code));
+			break;
+		case 2:
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+			break;
+		}
+	printf(" , ");
+	
+	switch (stockage_inst[indice].inst->typeop2) {
+		case 1:
+			printf("%s\n\n\n",registre_extract(stockage_inst[indice].inst->champop2 , code));
+			break;
+		case 2:
+			printf("%X\n\n\n",immediate(stockage_inst[indice].inst->champop2, code));
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+			break;
+		}
+	return 0;
+}
+
+
+int affiche_instruction_3operandes(DESASM_INST* stockage_inst, int indice, unsigned int code){
+	printf ("\t \t----> %s \t",stockage_inst[indice].inst->mnemo);
+	switch (stockage_inst[indice].inst->typeop1) {
+		case 1:
+			printf("%s",registre_extract(stockage_inst[indice].inst->champop1, code));
+			break;
+		case 2:
+			printf("%X",immediate(stockage_inst[indice].inst->champop1, code));
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+			break;
+		}
+	printf(" , ");
+	
+	switch (stockage_inst[indice].inst->typeop2) {
+		case 1:
+			printf("%s",registre_extract(stockage_inst[indice].inst->champop2, code));
+			break;
+		case 2:
+			printf("%X",immediate(stockage_inst[indice].inst->champop2, code));
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+			break;
+		}
+	printf(" , ");
+	
+	switch (stockage_inst[indice].inst->typeop3) {
+		case 1:
+			printf("%s\n\n\n",registre_extract(stockage_inst[indice].inst->champop3 , code));
+			break;
+		case 2:
+			printf("%X\n\n\n",immediate(stockage_inst[indice].inst->champop3, code));
+			break;
+		default:
+			printf("NEVER SHOULD BE HERE\n");
+			return 1;
+			break;
+		}	
+	return 0;
+}
+
 int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 
 	printf("\n\nLancement de _desasm_cmd\n\n");
 
 	FILE *fichier = NULL;
-	TYPE_INST* dico=NULL;
+	DESASM_INST* stockage_inst=NULL;
 
 	int ligne = 1;
 	int success = 0;
@@ -123,7 +209,8 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	char *dep=NULL;
 	char *arr=NULL;
 	
-	dico=calloc(NB,sizeof(*dico));				// structure retournée par la fonction de décodage
+	stockage_inst=calloc(NB,sizeof(*stockage_inst));				// structure retournée par la fonction de décodage
+	stockage_inst->inst=calloc(1,sizeof(TYPE_INST));
 
 	/************************************************************************************************************/
 	/*char* cond[15] = {"EQ","NE","CS","CC","MI","PL","VS","VC","HI","LS","GE","LT","GT","LE","AL"};
@@ -144,7 +231,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	if(dep==NULL ) dep=(seg->contenu);
 	if(arr==NULL ) arr=&((seg->contenu)[seg->taille-1]);
 	
-	//-------------------------------------------------------------------------------------->> à revoir sécurité d'initialisation
+	//-------------------------------------------------------------------------------------->> à revoir sécurité d'initialisation >> adresse de départ
 	/*unsigned int ecartdep = (dep-(seg->contenu))%4;
 		if(ecartdep!=0) dep=dep-ecartdep;
 		
@@ -188,7 +275,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		// Test etat ouverture dictionnaire----------------------------------------------
 				if(fichier == NULL){
 					WARNING_MSG("\nOuverture du dico impossible\n");
-					free(dico);
+					free(stockage_inst);
 					return 1;
 				}
 	//-------------------------------------------------------------------------------
@@ -213,7 +300,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		// Test etat ouverture dictionnaire----------------------------------------------
 				if(fichier == NULL){
 					WARNING_MSG("\nOuverture du dico impossible\n");
-					free(dico);
+					free(stockage_inst);
 					return 1;
 				}
 		code16 |= ((*(step+1)	<< 8)&(0xFF00));
@@ -231,30 +318,37 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		}
 
 	while(success == 0 && !feof(fichier)){
-		fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",dico[indice].identifiant, dico[indice].mnemo, 
-			&dico[indice].taille,&dico[indice].signature, &dico[indice].masque,  
-			&dico[indice].nb_operande, 
-			&dico[indice].typeop1,
-			&dico[indice].typeop2,
-			&dico[indice].typeop3,
-			&dico[indice].typeop4, 
-			dico[indice].champop1,
-			dico[indice].champop2,
-			dico[indice].champop3,
-			dico[indice].champop4);
+		fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",
+			stockage_inst[indice].inst->identifiant,
+			stockage_inst[indice].inst->mnemo, 
+			&stockage_inst[indice].inst->taille,
+			&stockage_inst[indice].inst->signature,
+			&stockage_inst[indice].inst->masque,  
+			&stockage_inst[indice].inst->nb_operande, 
+			&stockage_inst[indice].inst->typeop1,
+			&stockage_inst[indice].inst->typeop2,
+			&stockage_inst[indice].inst->typeop3,
+			&stockage_inst[indice].inst->typeop4, 
+			stockage_inst[indice].inst->champop1,
+			stockage_inst[indice].inst->champop2,
+			stockage_inst[indice].inst->champop3,
+			stockage_inst[indice].inst->champop4);
 
 		//--------------------------------------------------> NE PAS OUBLIER L'ORDRE !!!!!!!
 
 		
-		if( (dico[indice].signature & dico[indice].masque) == (code & dico[indice].masque) ){
+		if( ( ((stockage_inst[indice].inst)->signature) & ((stockage_inst[indice].inst)->masque)  ) == (code & (stockage_inst[indice].inst)->masque) ){
 			//printf("\nnumero de ligne : %d\n",ligne);
 			success = 1;
 		}
 		ligne++;
 	}
-	DEBUG_MSG("mnemo = %s , ligne 266",dico[indice].mnemo);
-	cond(dico+indice, code);
-	DEBUG_MSG("mnemo = %s , ligne 268",dico[indice].mnemo);
+
+	cond(stockage_inst[indice].inst, code);				//si mnemo == B, on remplace B par BEQ ou BNE ou .....
+
+	if(strcmp(stockage_inst[indice].inst->mnemo, "IT") == 0){			//si mnemo == IT
+
+}
 
 	if (success==1) {
 	
@@ -266,100 +360,20 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 		
 		//affiche_segment(seg, NULL, NULL);
 		//switch case suivant nombre d'opérandes
-		switch (dico[indice].nb_operande) {
+		switch (stockage_inst[indice].inst->nb_operande) {
 			case 1:
-				printf ("\t \t----> %s \t ",dico[indice].mnemo);
-				switch (dico[indice].typeop1) {
-					case 1:
-						printf("%s\n\n\n",registre_extract(dico[indice].champop1 , code));
-						break;
-					case 2:
-						printf("%X\n\n\n",immediate(dico[indice].champop1 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}
+				affiche_instruction_1operande(stockage_inst, indice, code);
+				puts(" ");
 				break;
-				puts(" ");
-			case 2:
-				printf ("\t \t----> %s \t",dico[indice].mnemo);
-				switch (dico[indice].typeop1) {
-					case 1:
-						printf("%s",registre_extract(dico[indice].champop1 , code));
 
-						break;
-					case 2:
-						printf("%X",immediate(dico[indice].champop1 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}
-				printf(" , ");
-				
-				switch (dico[indice].typeop2) {
-					case 1:
-						printf("%s\n\n\n",registre_extract(dico[indice].champop2 , code));
-						break;
-					case 2:
-						printf("%X\n\n\n",immediate(dico[indice].champop2 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}
+			case 2:
+				affiche_instruction_2operandes(stockage_inst, indice, code);
 				puts(" ");
-				
 				break;
 				
 			case 3:
-				printf ("\t \t----> %s \t",dico[indice].mnemo);
-				switch (dico[indice].typeop1) {
-					case 1:
-						printf("%s",registre_extract(dico[indice].champop1 , code));
-						break;
-					case 2:
-						printf("%X",immediate(dico[indice].champop1 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}
-				printf(" , ");
-				
-				switch (dico[indice].typeop2) {
-					case 1:
-						printf("%s",registre_extract(dico[indice].champop2 , code));
-						break;
-					case 2:
-						printf("%X",immediate(dico[indice].champop2 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}
-				printf(" , ");
-				
-				switch (dico[indice].typeop3) {
-					case 1:
-						printf("%s\n\n\n",registre_extract(dico[indice].champop3 , code));
-						break;
-					case 2:
-						printf("%X\n\n\n",immediate(dico[indice].champop3 , code));
-						break;
-					default:
-						printf("NEVER SHOULD BE HERE\n");
-						return 1;
-						break;
-					}	
+				affiche_instruction_3operandes(stockage_inst, indice,code);
 				puts(" ");
-				
 				break;
 			
 			case 4:
@@ -388,7 +402,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr){
 	i++;
 	
 	}		
-	free(dico);
+	free(stockage_inst);
 	return CMD_OK_RETURN_VALUE;
  
 }

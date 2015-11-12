@@ -275,7 +275,7 @@ int loadcmd(interpreteur inter) {
     char *adresse_du_fichier = NULL;
 
     if((token = get_next_token(inter))==NULL) {
-        WARNING_MSG("\****Erreur****\ 	Rentrez un nom de fichier a charger");   // indique "Erreur" si l'utilisateur rentre juste "load"
+        WARNING_MSG("[**Erreur**] 	Rentrez un nom de fichier a charger");   // indique "Erreur" si l'utilisateur rentre juste "load"
         return 1;
     }
     else {
@@ -286,10 +286,10 @@ int loadcmd(interpreteur inter) {
             if(get_type(token)== HEXA) {
                 adresse_du_fichier = strdup(token);
                 printf("adresse du fichier = %s \n",adresse_du_fichier);
-
+                
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Adresse non valide\n");
+                WARNING_MSG("[**Erreur**] 	Adresse non valide\n");
                 return 1;
             }
         }
@@ -313,7 +313,7 @@ int dispcmd(interpreteur inter) {
     //char *registre = NULL;
 
     if((token = get_next_token(inter)) == NULL) {		//l'utilisateur ne rentre rien après disp
-        WARNING_MSG("\****Erreur****\ 	Il manque des parametre(mem ou reg)");
+        WARNING_MSG("[**Erreur**] 	Il manque des parametre(mem ou reg)");
         return 1;
     }
 
@@ -323,19 +323,19 @@ int dispcmd(interpreteur inter) {
             return 1;
         }
         if((token=get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Rentrez une plage mémoire");
+            WARNING_MSG("[**Erreur**] 	Rentrez une plage mémoire");
             return 1;
         }
         else if(get_type(token) == HEXA) {    //l'utilisateur veut afficher une plage de mémoire
             adresse1=strdup(token);
             printf("adresse1 = %s\n",adresse1);
             if((token=get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Rentrez ':' puis une 2eme adresse\n");
+                WARNING_MSG("[**Erreur**] 	Rentrez ':' puis une 2eme adresse\n");
                 return 1;
             }
             else if(strcmp(token,":") == 0) {
                 if((token=get_next_token(inter)) == NULL) {
-                    WARNING_MSG("\****Erreur****\ 	Rentrez une 2eme adresse valide\n");
+                    WARNING_MSG("[**Erreur**] 	Rentrez une 2eme adresse valide\n");
                     return 1;
                 }
                 else if(get_type(token) == HEXA) {
@@ -344,12 +344,12 @@ int dispcmd(interpreteur inter) {
                     return _dispcmd("plage",inter,adresse1,adresse2);
                 }
                 else {
-                    WARNING_MSG("\****Erreur****\ 	2eme adresse non valide");
+                    WARNING_MSG("[**Erreur**] 	2eme adresse non valide");
                     return 1;
                 }
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Rentrez ':' pour séparer vos 2 adresses");
+                WARNING_MSG("[**Erreur**] 	Rentrez ':' pour séparer vos 2 adresses");
                 return 1;
             }
         }
@@ -358,7 +358,7 @@ int dispcmd(interpreteur inter) {
             return _dispcmd(token,inter,NULL,NULL);
         }
         else {
-            WARNING_MSG("\****Erreur****\ 	Rentrez une plage mémoire");
+            WARNING_MSG("[**Erreur**] 	Rentrez une plage mémoire");
             return 1;
         }
     }
@@ -366,7 +366,7 @@ int dispcmd(interpreteur inter) {
 
     else if(strcmp(token,"reg")==0) {			//l'utilisateur veut afficher des registres
         if((token = get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Rentrez des registres à afficher");
+            WARNING_MSG("[**Erreur**] 	Rentrez des registres à afficher");
             return 1;
         }
         else if(strcmp(token,"all") == 0) {	    //l'utilisateur veut afficher tous les registres
@@ -382,7 +382,7 @@ int dispcmd(interpreteur inter) {
                     token = get_next_token(inter);
                 }
                 else {
-                    WARNING_MSG("\****Erreur****\ 	Rentrez des noms de registres valides");
+                    WARNING_MSG("[**Erreur**] 	Rentrez des noms de registres valides");
                     return 1;
                 }
             }
@@ -390,7 +390,7 @@ int dispcmd(interpreteur inter) {
     }
 
     else {
-        WARNING_MSG("\****Erreur****\ 	Rentrez des paramètres valides");
+        WARNING_MSG("[**Erreur**] 	Rentrez des paramètres valides");
         return 1;
     }
     printf("NEVER SHOULD BE HERE\n");
@@ -409,7 +409,7 @@ int disasmcmd(interpreteur inter) {
 
 
     if((token = get_next_token(inter)) == NULL) {
-        WARNING_MSG("\****Erreur****\ 	Rentrez une plage");
+        WARNING_MSG("[**Erreur**] 	Rentrez une plage");
         return 1;
     }
 
@@ -418,14 +418,14 @@ int disasmcmd(interpreteur inter) {
         printf("\nadresse1 = %s\n",adresse1);
 
         if((token = get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Rentrez une 2eme adresse ou un décalage");
+            WARNING_MSG("[**Erreur**] 	Rentrez une 2eme adresse ou un décalage");
             return 1;
         }
 
 
         else if(strcmp(token,":") == 0) {
             if((token = get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Il manque une deuxieme adresse");
+                WARNING_MSG("[**Erreur**] 	Il manque une deuxieme adresse");
                 return 1;
             }
 
@@ -438,13 +438,13 @@ int disasmcmd(interpreteur inter) {
                 	}
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Deuxieme adresse non valable");
+                WARNING_MSG("[**Erreur**] 	Deuxieme adresse non valable");
                 return 1;
             }
         }
         else if(strcmp(token,"+") == 0) {
             if((token = get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Rentrez le decalage souhaite");
+                WARNING_MSG("[**Erreur**] 	Rentrez le decalage souhaite");
                 return 1;
             }
             else if(is_deci32(token)) {
@@ -452,17 +452,17 @@ int disasmcmd(interpreteur inter) {
                 printf("decalage = %s\n\n",decalage);
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Rentrez un decalage valide");
+                WARNING_MSG("[**Erreur**] 	Rentrez un decalage valide");
                 return 1;
             }
         }
         else {
-            WARNING_MSG("\****Erreur****\ 	Rentrez une 2eme adresse ou un décalage");
+            WARNING_MSG("[**Erreur**] 	Rentrez une 2eme adresse ou un décalage");
             return 1;
         }
     }
     else {
-        WARNING_MSG("\****Erreur****\ 	Adresse non valide");
+        WARNING_MSG("[**Erreur**] 	Adresse non valide");
         return 1;
     }
     if (get_next_token(inter)!=NULL){
@@ -488,7 +488,7 @@ int setcmd(interpreteur inter){
    unsigned int valfin=0;
 
    if((token = get_next_token(inter)) == NULL){
-	WARNING_MSG("\****Erreur****\ 	Rentrez un parametre (reg ou mem)");
+	WARNING_MSG("[**Erreur**] 	Rentrez un parametre (reg ou mem)");
 	return 1;
    }
 
@@ -496,7 +496,7 @@ int setcmd(interpreteur inter){
 	DEBUG_MSG("Modifie un champs dans la memoire");
 
 	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("\****Erreur****\ 	Rentrez un type (byte ou word)");	//!!! erreur------------------
+	    WARNING_MSG("[**Erreur**] 	Rentrez un type (byte ou word)");	//!!! erreur------------------
 	    return 1;
 	}																		//--------------------sortie
 	else if(strcmp(token,"byte") == 0){
@@ -505,7 +505,7 @@ int setcmd(interpreteur inter){
 		token = get_next_token(inter);
 	    //if((token = get_next_token(inter)) == NULL){									// correction
 		if(token == NULL){
-		WARNING_MSG("\****Erreur****\ 	Rentrez une adresse hexadecimale");
+		WARNING_MSG("[**Erreur**] 	Rentrez une adresse hexadecimale");
 		return 1;
 		}
 
@@ -513,7 +513,7 @@ int setcmd(interpreteur inter){
 		adresse = token;
 		DEBUG_MSG("Adresse à modifier = %s",adresse);
 		if((token = get_next_token(inter)) == NULL){
-		    WARNING_MSG("\****Erreur****\ 	Rentrez la valeur a mettre a cette adresse");
+		    WARNING_MSG("[**Erreur**] 	Rentrez la valeur a mettre a cette adresse");
 		    return 1;
 		}
 
@@ -524,26 +524,26 @@ int setcmd(interpreteur inter){
 		 	return _setcmd_mem(inter,"byte",adresse,valfin);		// <<<<---------------------------A REFAIRE & FINIR
 		}  //int _setcmd_mem(interpreteur inter,char* cas,char* endroit,char* valeur)
 		else{
-		    WARNING_MSG("\****Erreur****\ 	Rentrez une valeur decimale entiere");
+		    WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
 		    return 1;
 		}
 	    }
 	    else{
-		WARNING_MSG("\****Erreur****\ 	Rentrez une valeur hexadecimale");
+		WARNING_MSG("[**Erreur**] 	Rentrez une valeur hexadecimale");
 		return 1;
 	    }
 	}
 	else if(strcmp(token,"word") == 0){
 	    printf("type : word\n");
 	    if((token = get_next_token(inter)) == NULL){
-		WARNING_MSG("\****Erreur****\ 	Rentrez une adresse hexadecimale");
+		WARNING_MSG("[**Erreur**] 	Rentrez une adresse hexadecimale");
 		return 1;
 	    }
 	    else if(get_type(token) == HEXA){
 		adresse = strdup(token);
 		DEBUG_MSG("Adresse à modifier = %s\n",adresse);
 		if((token = get_next_token(inter)) == NULL){
-		    WARNING_MSG("\****Erreur****\ 	Rentrez la valeur à mettre à cette adresse");
+		    WARNING_MSG("[**Erreur**] 	Rentrez la valeur à mettre à cette adresse");
 		    return 1;
 		}
 		else if(get_type(token) == DECI){
@@ -553,17 +553,17 @@ int setcmd(interpreteur inter){
 		    //return _setcmd("word dans la memoire valeur sur deux octets");		// <<<<---------------------------A REFAIRE & FINIR
 		}
 		else{
-		    WARNING_MSG("\****Erreur****\ 	Rentrez une valeur decimale entiere");
+		    WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
 		    return 1;
 		}
 	    }
 	    else{
-		WARNING_MSG("\****Erreur****\ 	Rentrez une valeur hexadecimale");
+		WARNING_MSG("[**Erreur**] 	Rentrez une valeur hexadecimale");
 		return 1;
 	    }
 	}
 	else{
-	    WARNING_MSG("\****Erreur****\ 	Rentrez un type valide (byte ou word)");
+	    WARNING_MSG("[**Erreur**] 	Rentrez un type valide (byte ou word)");
 	    return 1;
 	}
     }
@@ -573,18 +573,18 @@ int setcmd(interpreteur inter){
     else if(strcmp(token,"reg") == 0){
 	printf("Modifie un registre\n");
 	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("\****Erreur****\ 	Rentrez le nom d'un registre");
+	    WARNING_MSG("[**Erreur**] 	Rentrez le nom d'un registre");
 	    return 1;
 	}
 	else if(get_reg(token) == NULL){
-	    WARNING_MSG("\****Erreur****\ 	Rentrez le nom d'un registre valide");
+	    WARNING_MSG("[**Erreur**] 	Rentrez le nom d'un registre valide");
 	    return 1;
 	}
 	else{
 	    registre = strdup(token);
 	    DEBUG_MSG("Registre à modifier : %s \n",registre);
 	    if((token = get_next_token(inter)) == NULL){
-		WARNING_MSG("\****Erreur****\ 	Rentrez une valeur");
+		WARNING_MSG("[**Erreur**] 	Rentrez une valeur");
 		return 1;
 	    }
 	    else if(get_type(token) == DECI){
@@ -595,14 +595,14 @@ int setcmd(interpreteur inter){
 	    return _setcmd_reg(inter,registre,valfin);
 	    }
 	    else{
-		WARNING_MSG("\****Erreur****\ 	Rentrez une valeur decimale entiere");
+		WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
 		return 1;
 	    }
 	}
     }
 
     else{
-	WARNING_MSG("\****Erreur****\ 	Parametres non valides, rentrez mem ou reg");
+	WARNING_MSG("[**Erreur**] 	Parametres non valides, rentrez mem ou reg");
 	return 1;
 	}
 return CMD_OK_RETURN_VALUE;
@@ -615,21 +615,21 @@ int assertcmd(interpreteur inter) {
     char *adresse = NULL;
 
     if((token=get_next_token(inter)) == NULL) {
-        WARNING_MSG("\****Erreur****\ 	Il manque des paramètres (reg, word ou byte)");
+        WARNING_MSG("[**Erreur**] 	Il manque des paramètres (reg, word ou byte)");
         return 1;
     }
 
     else if(strcmp(token,"reg") == 0) {
         printf("reg\n");
         if((token=get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Il manque le nom d'un registre à co évaluer");
+            WARNING_MSG("[**Erreur**] 	Il manque le nom d'un registre à co évaluer");
             return 1;
         }
         else if(is_reg(token) != 0) {
             registre = token;
             DEBUG_MSG("registre : %s\n",registre);
             if((token=get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Il manque la valeur à tester");
+                WARNING_MSG("[**Erreur**] 	Il manque la valeur à tester");
                 return 1;
             }
             else if(get_type(token) == DECI32) {
@@ -638,7 +638,7 @@ int assertcmd(interpreteur inter) {
             }
         }
         else {
-            WARNING_MSG("\****Erreur****\ 	nom du registre non valide");
+            WARNING_MSG("[**Erreur**] 	nom du registre non valide");
             return 1;
         }
         
@@ -649,14 +649,14 @@ int assertcmd(interpreteur inter) {
     else if(strcmp(token,"word") == 0) {					//l'utilisatuer veut évaluer un word
         printf("word\n");
         if((token=get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Il manque l'adresse du word a evaluer");
+            WARNING_MSG("[**Erreur**] 	Il manque l'adresse du word a evaluer");
             return 1;
         }
         else if(get_type(token) == HEXA) {				//l'adresse est bien en hexa
             adresse = token;
             printf("adresse du word : %s\n",adresse);
             if((token=get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Il manque la valeur a tester");
+                WARNING_MSG("[**Erreur**] 	Il manque la valeur a tester");
                 return 1;
             }
             else if(get_type(token) == DECI32) {
@@ -664,12 +664,12 @@ int assertcmd(interpreteur inter) {
                 printf("valeur a tester : %s\n",valeur);
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Valeur non valide");
+                WARNING_MSG("[**Erreur**] 	Valeur non valide");
                 return 1;
             }
         }
         else {
-            WARNING_MSG("\****Erreur****\ 	Adresse non valide");
+            WARNING_MSG("[**Erreur**] 	Adresse non valide");
             return 1;
         }
         return _assert_cmd("word",adresse,valeur); 
@@ -679,14 +679,14 @@ int assertcmd(interpreteur inter) {
     else if(strcmp(token,"byte") == 0) {					//l'utilisateur veut évaluer un byte
         printf("byte\n");
         if((token=get_next_token(inter)) == NULL) {
-            WARNING_MSG("\****Erreur****\ 	Il manque l'adresse du byte a evaluer");
+            WARNING_MSG("[**Erreur**] 	Il manque l'adresse du byte a evaluer");
             return 1;
         }
         else if(get_type(token) == HEXA) {				//l'adresse est bien en hexa
             adresse = token;
             printf("adresse du byte : %s\n",adresse);
             if((token=get_next_token(inter)) == NULL) {
-                WARNING_MSG("\****Erreur****\ 	Il manque la valeur a tester");
+                WARNING_MSG("[**Erreur**] 	Il manque la valeur a tester");
                 return 1;
             }
             else if(get_type(token) == DECI8) {
@@ -694,12 +694,12 @@ int assertcmd(interpreteur inter) {
                 printf("valeur a tester : %s\n",valeur);
             }
             else {
-                WARNING_MSG("\****Erreur****\ 	Valeur non valide");
+                WARNING_MSG("[**Erreur**] 	Valeur non valide");
                 return 1;
             }
         }
         else {
-            WARNING_MSG("\****Erreur****\ 	Adresse non valide");
+            WARNING_MSG("[**Erreur**] 	Adresse non valide");
             return 1;
         }
     	return _assert_cmd("byte",adresse,valeur); 

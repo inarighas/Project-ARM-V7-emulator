@@ -49,6 +49,19 @@ typedef struct
 }TYPE_INST;
 
 
+typedef struct
+{	
+	int op[4];
+	unsigned int code;
+	unsigned char setflag, shift, blockIT;
+	TYPE_INST *inst;
+	
+}DESASM_INST;
+
+
+
+
+
 //Fonction desassemblage
 
 int is_32(char*instr_ptr);

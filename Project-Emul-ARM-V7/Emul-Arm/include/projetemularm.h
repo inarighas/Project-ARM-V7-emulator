@@ -22,6 +22,7 @@
 
 #include "inter.h"
 #include "commandes.h"
+#include "desasm.h"
 
 
 
