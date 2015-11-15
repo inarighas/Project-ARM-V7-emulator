@@ -59,14 +59,14 @@ Toute autre valeur signifie qu'une erreur est survenue
 // fonction affichant les octets d'un segment sur la sortie standard
 // parametres :
 //   name           : nom de la section dont le contenue est affichée
-//   start          : adresse virtuelle d'implantation du contenu de la section dans la memoire 
+//   start          : adresse virtuelle d'implantation du contenu de la section dans la memoire
 //   content        : le contenu de la section à afficher
 //   taille         : taille en octet de la section à afficher
 
 
 //--------------------------------------------------
 /* type de token (exemple) */
-enum {HEXA,DECI32,DECI8,REG,RANGE,DECI,UNKNOWN};
+enum {HEXA32,HEXA8,DECI32,DECI8,REG,STATEREG,UNKNOWN};
 
 /* mode d'interaction avec l'interpreteur (exemple)*/
 typedef enum {INTERACTIF,SCRIPT,DEBUG_MODE} inter_mode;
@@ -88,14 +88,17 @@ typedef struct {
 interpreteur init_inter(void) ;
 void del_inter(interpreteur inter);
 char* get_next_token(interpreteur inter);
-
+char* tolower_string(char* s,int n_max);
 
 int is_hexa(char* chaine)	;
+int is_hexa8(char* chaine)	;
+int is_hexa32(char* chaine)	;
 int is_deci32(char* chaine)	;
 int is_deci8(char* chaine)	;
 int is_deci(char* chaine)	;  //-----------------------> A SUPPRIMER
 int is_reg(char *token)		;
-int is_range(char* token)	;
+int is_state_reg(char *token);
+//int is_range(char* token)	;
 int get_type(char* chaine)	;
 
 int _testcmd(int hexValue) ;

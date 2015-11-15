@@ -1,6 +1,6 @@
 #ifndef _COMMANDES_H_
 #define _COMMANDES_H_
- 
+
 
 #include "projetemularm.h"
 
@@ -12,7 +12,7 @@ int _loadcmd(char *fichier_elf, interpreteur inter);
 
 int _dispcmd(char*string, interpreteur inter, char * adrdep, char*adrarr);
 
-int _assert_cmd(char* string, char* type , char* val);
+int _assert_cmd(char* string, char* type , unsigned int val);
 
 
 

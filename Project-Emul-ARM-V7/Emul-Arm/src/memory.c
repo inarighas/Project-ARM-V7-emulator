@@ -312,32 +312,32 @@ void affiche_section(char* name, unsigned int start, char* content, unsigned int
 }
 
 //trouve segment-----------------------------------------------------------
-SEGMENT trouve_segment_nom(char*s, MAPMEM map){
-	int i =0;
-	int success=0;
-	
-	if (s==NULL) {
-		WARNING_MSG("Erreur nom de segment recherché");
-		return NULL;
-		}
-	if (map==NULL) {
-		WARNING_MSG("Map mémoire inexistante pour le moment");
-		return NULL;
-		}
-	while(i<NBSEG && success==0 ){
-		if (strcmp(s,(map[i])->nom)==0) success=1;
-		i++;
-		}
-	
-	if (success==1) {
-		DEBUG_MSG("Segment {%s} trouvé",map[i-1]->nom);
-		return map[i-1];
-		}
-		
-	else {
-		WARNING_MSG("Segment non trouvé");
-		return NULL;
-		}
-	}
-	
-	
+SEGMENT trouve_segment_nom(char*s, MAPMEM map) {
+    int i =0;
+    int success=0;
+
+    if (s==NULL) {
+        WARNING_MSG("Erreur nom de segment recherché");
+        return NULL;
+    }
+    if (map==NULL) {
+        WARNING_MSG("Map mémoire inexistante pour le moment");
+        return NULL;
+    }
+    while(i<NBSEG && success==0 ) {
+        if (strcmp(s,(map[i])->nom)==0) success=1;
+        i++;
+    }
+
+    if (success==1) {
+        DEBUG_MSG("Segment {%s} trouvé",map[i-1]->nom);
+        return map[i-1];
+    }
+
+    else {
+        WARNING_MSG("Segment non trouvé");
+        return NULL;
+    }
+}
+
+

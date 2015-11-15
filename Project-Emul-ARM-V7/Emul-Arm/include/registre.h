@@ -15,9 +15,9 @@
 
 // Définition de la structure REGISTRE
 typedef struct {
-  char* nom;
-  int taille;                // taille en bits
-  unsigned int valeur;
+    char* nom;
+    int taille;                // taille en bits
+    unsigned int valeur;
 } reg , *REGISTRE;
 
 

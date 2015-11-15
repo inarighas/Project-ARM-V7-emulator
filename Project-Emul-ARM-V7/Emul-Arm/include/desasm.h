@@ -30,33 +30,33 @@
 #define AL 0xE
 
 
-typedef struct 
+typedef struct
 {
-	char identifiant[16];
-	char mnemo[16];
-	int taille;
-	unsigned int masque, signature;
-	int nb_operande;					// On se limite à deux opérandes pour le moment
-	int typeop1;
-	int typeop2;
-	int typeop3;
-	int typeop4;
-	char champop1[20];
-	char champop2[20];
-	char champop3[20];
-	char champop4[20];
-	
-}TYPE_INST;
+    char identifiant[16];
+    char mnemo[16];
+    int taille;
+    unsigned int masque, signature;
+    int nb_operande;					// On se limite à deux opérandes pour le moment
+    int typeop1;
+    int typeop2;
+    int typeop3;
+    int typeop4;
+    char champop1[20];
+    char champop2[20];
+    char champop3[20];
+    char champop4[20];
+
+} TYPE_INST;
 
 
 typedef struct
-{	
-	int op[4];
-	unsigned int code;
-	unsigned char setflag, shift, blockIT;
-	TYPE_INST *inst;
-	
-}DESASM_INST;
+{
+    int op[4];
+    unsigned int code;
+    unsigned char setflag, shift, blockIT;
+    TYPE_INST *inst;
+
+} DESASM_INST;
 
 
 
