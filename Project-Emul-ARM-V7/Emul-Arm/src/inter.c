@@ -14,7 +14,9 @@ interpreteur init_inter(void) {
     if (inter ==NULL)
         ERROR_MSG("impossible d'allouer un nouvel interpreteur");
     inter->memory = NULL;
-    inter->fulltable = NULL;
+    inter->fulltable = calloc(2,sizeof(*(inter->fulltable)));
+    inter->fulltable[0]=init_table_registre();
+    inter->fulltable[1]=init_table_registre_etat();
     return inter;
 }
 
@@ -584,7 +586,7 @@ int setcmd(interpreteur inter) {
     unsigned int valeur=0;
     char* registre=NULL;
     char indicesaisi=0;
-
+    char octet=0;
 
     if((token = get_next_token(inter)) == NULL) {
         WARNING_MSG("[**Erreur**] 	Rentrez un parametre (reg ou mem)");
@@ -613,11 +615,13 @@ int setcmd(interpreteur inter) {
                 case DECI8:
                     valeur=strtol(token,NULL,10);
                     DEBUG_MSG("Remise du registre %s à la valeur %d ",registre,valeur);
+                    _set_reg_cmd(inter,registre,valeur);
                     break;
                 case HEXA32:
                 case HEXA8:
-                    valeur=strtol(token,NULL,16);
+                    valeur=strtoul(token,NULL,16);
                     DEBUG_MSG("Remise du registre %s à la valeur 0x%X ",registre,valeur);
+                    _set_reg_cmd(inter,registre,valeur);
                     break;
                 default:
                     WARNING_MSG("Veuillez rentrer un valeur hexadécimale ou décimale (32bits)");
@@ -630,7 +634,8 @@ int setcmd(interpreteur inter) {
                 INFO_MSG("Quel registre registre d'état aimeriez vous inverser ?");
                 INFO_MSG("N, C,  V ou Z?");
                 scanf("%c",&indicesaisi);
-                DEBUG_MSG("Inversion du registre %c",indicesaisi);
+                DEBUG_MSG("Inversion du registre APSR.%c",indicesaisi);
+                _set_cmd_apsr(inter,indicesaisi);
                 break;
 
             default:
@@ -678,12 +683,14 @@ int setcmd(interpreteur inter) {
                     }
                     switch (get_type(token)) {
                     case HEXA8:
-                        valeur=strtol(token,NULL,16);
-                        DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur 0x%X ",adresse,valeur);
+                        octet=strtoul(token,NULL,16);
+                        DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur 0x%X ",adresse,octet);
+                        _set_mem_byte_cmd(inter,adresse,octet);
                         break;
                     case DECI8:
-                        valeur=strtol(token,NULL,10);
-                        DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur %d ",adresse,valeur);
+                        octet=strtol(token,NULL,10);
+                        DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur %d ",adresse,octet);
+                        _set_mem_byte_cmd(inter,adresse,octet);
                         break;
                     default:
                         WARNING_MSG("Rentrez une valeur héxadécimale ou décimale (8bits)");
@@ -701,13 +708,15 @@ int setcmd(interpreteur inter) {
                     switch (get_type(token)) {
                     case HEXA8:
                     case HEXA32:
-                        valeur=strtol(token,NULL,16);
+                        valeur=strtoul(token,NULL,16);
                         DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur 0x%X ",adresse,valeur);
+                        _set_mem_word_cmd(inter,adresse,valeur);
                         break;
                     case DECI32:
                     case DECI8:
                         valeur=strtol(token,NULL,10);
                         DEBUG_MSG("Remise de l'octet à l'adresse 0x%X à la valeur %d ",adresse,valeur);
+                        _set_mem_word_cmd(inter,adresse,valeur);
                         break;
                     default:
                         WARNING_MSG("Rentrez une valeur héxadécimale ou décimale (32bits)");

@@ -43,7 +43,7 @@ SEGMENT change_plage_seg(SEGMENT seg, unsigned int hexdep, unsigned int hexarr ,
 void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr);
 MAPMEM ajout_seg_map(MAPMEM mem ,char* name, unsigned int adr ,unsigned int size_max, int place);
 
-void affiche_section(char* name, unsigned int start, char* content, unsigned int taille);
+void affiche_section(char* name, unsigned int start, char* content, unsigned int taille,unsigned int taille_max);
 
 SEGMENT trouve_segment_nom(char*s, MAPMEM map);
 

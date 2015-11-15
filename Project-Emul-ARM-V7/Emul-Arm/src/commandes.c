@@ -127,15 +127,17 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
         if (content!=NULL) {
             printf("nsegments :: %d \n",nsegments);
             print_section_raw_content(section_names[i],next_segment_start,content,taille);
+            inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments);
             next_segment_start+= ((taille+0x1000)>>12 )<<12; // on arrondit au 1k suppérieur
             nsegments++;
 
             // copier le contenu dans la memoire avant de liberer
-            inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments-1);
+            //  inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments-1);
 
             ((inter->memory)[nsegments-1]->flag)=1;
             ((inter->memory)[nsegments-1]->contenu)=content;
-            ((inter->memory)[nsegments-1]->taille)=taille;
+            ((inter->memory)[nsegments-1]->taille)=taille+1;
+            ((inter->memory)[nsegments-1]->taille_max)=next_segment_start-((inter->memory)[nsegments-1]->adresse_initiale);
             affiche_segment(inter->memory[nsegments-1],NULL,NULL);
             //free(content);
         }
@@ -187,6 +189,51 @@ void print_section_raw_content(char* name, unsigned int start, byte* content, un
 	3 cas possible
 		-byte /-word /-reg
 		*/
+void _set_reg_cmd(interpreteur inter, char*reg, unsigned int valeur) {
+    REGISTRE registre;
+    registre = trouve_registre(reg,(inter->fulltable)[0]);
+    if(registre!= NULL) {
+        registre = modifier_valeur_reg(valeur,registre);
+    }
+    return;
+}
+
+void _set_cmd_apsr(interpreteur inter, char*reg) {
+    REGISTRE registre;
+    registre = trouve_registre(reg,(inter->fulltable)[1]);
+    if(registre!= NULL) {
+        inverser_registre_etat(registre);
+    }
+    return;
+}
+
+void _set_mem_byte_cmd(interpreteur inter, unsigned int adresse, char valeur) {
+    SEGMENT seg;
+    int i=0;
+    for(i=0; i<3; i++) {
+        seg = (inter->memory)[i];
+        seg = change_val_seg(seg,adresse,valeur);
+    }
+    return;
+}
+
+void _set_mem_word_cmd(interpreteur inter, unsigned int adresse, unsigned int valeur) {
+    SEGMENT seg;
+    int i=0;
+    char bytes[4];
+    bytes[0] = (valeur >> 24) & 0xFF;
+    bytes[1] = (valeur >> 16) & 0xFF;
+    bytes[2] = (valeur >> 8) & 0xFF;
+    bytes[3] = valeur & 0xFF;
+    for(i=0; i<3; i++) {
+        seg = (inter->memory)[i];
+        seg = change_val_seg(seg,adresse+3,bytes[3]);
+        seg = change_val_seg(seg,adresse+2,bytes[2]);
+        seg = change_val_seg(seg,adresse+1,bytes[1]);
+        seg = change_val_seg(seg,adresse,bytes[0]);
+    }
+    return;
+}
 /*
 int _setcmd_mem(interpreteur inter,char* cas,char* endroit,unsigned int valeur){		// la valeur est un uint!!!!
 	char* mode=strdup(cas);

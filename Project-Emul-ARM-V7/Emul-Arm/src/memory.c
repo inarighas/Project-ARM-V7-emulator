@@ -115,7 +115,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
 
     if(hexdep==NULL && hexarr==NULL) {
         DEBUG_MSG("**affichage complet**");
-        affiche_section((seg->nom), (seg->adresse_initiale), (seg->contenu),(seg->taille));
+        affiche_section((seg->nom), (seg->adresse_initiale), (seg->contenu),(seg->taille),(seg->taille_max));
         puts(" ");
         return;
     }
@@ -140,7 +140,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
         /*for (i=0 ; i<(arr-dep+1); i++){
         	printf("%x ",seg->contenu[i]);
         	}*/
-        affiche_section((seg->nom), seg->adresse_initiale, (seg->contenu),(arr+1-(seg->adresse_initiale)));
+        affiche_section((seg->nom), seg->adresse_initiale, (seg->contenu),(arr+1-(seg->adresse_initiale)),(seg->taille_max));
         puts(" ");
         return;
     }
@@ -150,7 +150,7 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
         /*for (i=dep ; i<(arr-dep+1); i++){
         	printf("%x ",seg->contenu[i]);
         	}*/
-        affiche_section((seg->nom), dep, (seg->contenu),arr+1-dep);
+        affiche_section((seg->nom), dep, (seg->contenu),arr+1-dep,(seg->taille_max));
         puts(" ");
         return;
     }
@@ -211,7 +211,7 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
             seg=inc_segment(seg);
             lim = (seg->adresse_initiale)+(seg->taille) ;
         }
-
+        DEBUG_MSG("taille {%s} : %d",seg->nom,seg->taille);
         puts(" ");
         return &((seg->contenu)[hexval-(seg->adresse_initiale)]);
     }
@@ -294,12 +294,12 @@ SEGMENT change_plage_seg(SEGMENT seg, unsigned int dep, unsigned int arr , char*
 
 
 //-------------------------------------------------------//
-void affiche_section(char* name, unsigned int start, char* content, unsigned int taille) {
+void affiche_section(char* name, unsigned int start, char* content, unsigned int taille,unsigned int taille_max) {
     int k;
     unsigned char octet =0;
-    printf("\n section {%s} **[size: %d bytes] loaded at 0x%x :\n",name,taille,start);
+    printf("\n section {%s} **[size: %d bytes]**[maxsize: 0x%x bytes]**loaded at 0x%x :\n",name,taille,taille_max,start);
     if (content!=NULL && taille>0) {
-        for(k=0; k<taille; k++) {
+        for(k=0; k<=taille; k++) {
             // on affiche le contenu de la section qui devrait se retrouver
             // en "memoire virtuelle" à l'adresse virtuelle start+k
             // (*(content + k) dans la mémoire physique)
