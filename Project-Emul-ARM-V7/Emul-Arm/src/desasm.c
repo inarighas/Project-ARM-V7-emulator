@@ -71,9 +71,7 @@ char* registre_extract(char* s , unsigned int code) {
 */
 void cond(TYPE_INST *instruction, unsigned int code) {
     unsigned int condition =0;
-    char* champ=NULL;
     if(strcmp(instruction->mnemo,"B") == 0) {
-        champ=strdup("11-8");
         condition = immediate("11-8",code);
         if(condition == EQ) strcpy(instruction->mnemo,"BEQ");
         if(condition == NE) strcpy(instruction->mnemo,"BNE");
@@ -92,6 +90,35 @@ void cond(TYPE_INST *instruction, unsigned int code) {
         if(condition == AL) strcpy(instruction->mnemo,"BAL");
     }
     return;
+}
+
+    int IT(TYPE_INST* inst, unsigned int code){
+        if(strcmp(inst->mnemo, "IT") == 0){
+            unsigned int firstcond0 = immediate("4",code);
+            unsigned int mask[4];
+            mask[0] = immediate("0", code);
+            mask[1] = immediate("1", code);
+            mask[2] = immediate("2", code);
+            mask[3] = immediate("3", code);
+
+            if(mask[3]==0 && mask[2]==0 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "IT");
+            if(mask[3]==firstcond0 && mask[2]==1 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "ITT");
+            if(mask[3]==(!firstcond0) && mask[2]==0 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "ITE");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITTT");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITET");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITTE");
+            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "IEE");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITTTT");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITETT");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITTET");
+            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITEET");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITTTE");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITETE");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITTEE");
+            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITEEE");
+            return 1;
+    }
+    else return 0;
 }
 
 int affiche_instruction_1operande(DESASM_INST* stockage_inst, int indice, unsigned int code) {
@@ -227,8 +254,8 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
 
     dep = get_byte_seg(seg,adrdep);
     arr = get_byte_seg(seg,adrarr);
-    DEBUG_MSG("dep = 0x%X",dep);
-    DEBUG_MSG("fin = 0x%X",arr);
+    DEBUG_MSG("dep = 0x%x ",dep);
+    DEBUG_MSG("fin = 0x%x ",arr);
     if(dep==NULL || arr==NULL ) {
         INFO_MSG("Voulez vous desassembler tout le segment text? (y/n)");
         scanf("%c",&reponse);

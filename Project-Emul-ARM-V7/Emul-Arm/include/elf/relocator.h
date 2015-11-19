@@ -149,7 +149,7 @@ extern "C" {
 
 
 
-
+/*
 
 
 static char *ARM32_REL[] = {
@@ -190,7 +190,7 @@ static char *ARM32_REL[] = {
     "R_ARM_PRIVATE_13","R_ARM_PRIVATE_14","R_ARM_PRIVATE_15","R_ARM_ME_TOO",
     "R_ARM_THM_TLS_DESCSEQ16","R_ARM_THM_TLS_DESCSEQ32"
 };
-
+*/
 #ifdef __cplusplus
 }
 #endif

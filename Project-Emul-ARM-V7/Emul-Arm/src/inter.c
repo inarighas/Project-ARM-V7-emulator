@@ -61,11 +61,14 @@ char* get_next_token(interpreteur inter) {
 char* tolower_string(char* s,int n_max) {
     int i;
     char* new = NULL;
-    if (s==NULL) DEBUG_MSG("Erreur, can't lower the string");
+    if (s==NULL) {
+        DEBUG_MSG("Erreur, can't lower the string");
+        return NULL;
+    }
     new = strdup(s);
     for (i = 0; new[i] != '\0'|| i<n_max; i++)
         new[i] = (char)tolower(new[i]);
-    return;
+    return new;
 }
 
 /**
@@ -191,7 +194,7 @@ int is_reg(char *token) {
 
 int is_state_reg(char *token2) {
 
-    char* token=NULL;
+    //char* token=NULL;
     if(token2 == NULL) return 0;
 
     //token = tolower_string(token2,6);
@@ -585,7 +588,7 @@ int setcmd(interpreteur inter) {
     unsigned int adresse =0;
     unsigned int valeur=0;
     char* registre=NULL;
-    char indicesaisi=0;
+    char apsrsaisi[20]={0};
     char octet=0;
 
     if((token = get_next_token(inter)) == NULL) {
@@ -633,9 +636,9 @@ int setcmd(interpreteur inter) {
             case STATEREG:
                 INFO_MSG("Quel registre registre d'état aimeriez vous inverser ?");
                 INFO_MSG("N, C,  V ou Z?");
-                scanf("%c",&indicesaisi);
-                DEBUG_MSG("Inversion du registre APSR.%c",indicesaisi);
-                _set_cmd_apsr(inter,indicesaisi);
+                scanf("%s",apsrsaisi);
+                DEBUG_MSG("Inversion du registre APSR.%s",apsrsaisi);
+                _set_cmd_apsr(inter,apsrsaisi);
                 break;
 
             default:
