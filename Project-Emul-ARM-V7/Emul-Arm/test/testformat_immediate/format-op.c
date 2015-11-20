@@ -1,11 +1,14 @@
+
+
 #include "projetemularm.h"
 
 
 
-unsigned int immediate(char* s ,unsigned int code){
+IMMEDIATE immediate(char* s ,unsigned int code){
 	unsigned int debut,fin,val; 
 	unsigned int nb_bits;
 	char* token;
+	IMMEDIATE returnvalue = calloc(1,sizeof(*returnvalue));
 	token = strtok(s,":");
 	val=0;
 	
@@ -16,7 +19,9 @@ unsigned int immediate(char* s ,unsigned int code){
 		//printf("%x \n",val);
 		}
 	while((token = strtok(NULL,":"))!=NULL);
-	return val;
+	returnvalue->imm=val;
+	returnvalue->bits=nb_bits;
+	return returnvalue;
 	}
 
 
@@ -33,84 +38,93 @@ char* registre_extract(char* s , unsigned int code){
 	}
 
 
-
-(SRType,int) decodeIMMshift(char* typechamp,unsigned int imm5){
+// Decode IMM Shift ---------------------------------------------------------
+(SRType,int) decodeIMMshift(IMMEDIATE typebrut,IMMEDIATE imm5){
 	SRType shift_t;
 	SRType shift_n;
-	unsigned int type = immediate(typechamp);
-	switch(type){
+	if((typebrut->bits)!=2){
+	  WARNING_MSG("Nombre de bits type Incorrect");
+	  return NULL;
+	}
+	switch(typebrut->imm){
 		case 0x0:
-			shift_t = SRType_LSL; shift_n=imm5;
+			shift_t = SRType_LSL; shift_n = imm5->imm;
 			break;
 		case 0x1:
 			shift_t = SRType_LSR; 
-			if(imm5==0) shift_n=32;
-			else shift_n=imm5;
+			if(imm5->imm==0) shift_n=32;
+			else shift_n=imm5->imm;
 			break;
 		case 0x2:
 			shift_t=SRType_ASR; 
-			if(imm5==0) shift_n=32;
-			else shift_n=imm5;
+			if(imm5->imm==0) shift_n=32;
+			else shift_n=imm5->imm;
 			break;
 		case 0x3:
-			if(imm5==0){
+			if(imm5->imm==0){
 				shift_t = SRType_RRX; shift_n = 1;
 				}
 			else{
-				shift_t = SRType_ROR; shift_n = imm5;
+				shift_t = SRType_ROR; shift_n = imm5->imm;
 				}
 			break;
+	default:
+	  WARNING_MSG("Valeur type incorrecte");
+	  return NULL;
+	  break;
+
 		}
 	return(shift_t,shift_n);
 	}
 
 
 //SIGNEXTEND/////////////////////////////////////////////////////////////////////////
-unsigned int signextend(unsigned int imm,int n, int leftmost){
-	int	i	= 0;					//DO NOT FORGET to give to this function the place of the leftmost bit
+IMMEDIATE signextend(IMMEDIATE value,int n){
+	int i = 0;					//DO NOT FORGET to give to this function the place of the leftmost bit
 	unsigned int mask = 0x1;
 	unsigned int extendbits = 0x80000000;
-	unsigned int finvalue = 0;
-	 
-	if ((leftmost>n-1) || (leftmost<0)){
-		puts("A problem is detected concerning the leftmost bit place - signextend");
-		return imm;
+	IMMEDIATE finalvalue = calloc(1,sizeof(*finalvalue));
+	
+	if ((value->bits>n-1) || (value->bits<0)){
+		puts("A problem is detected concerning the value->bits bit place - signextend");
+		return value;
 		}
-	mask= (mask << leftmost);
-	i = imm & mask;
-	i= i >> leftmost;
+	mask= (mask << value->bits);
+	i = value->imm & mask;
+	i= i >> value->bits;
 	printf("%X",i);
 		if(i!=1 && i!=0){
 			puts("A problem is detected -mask signextend-");
-			return imm;
+			return value;
 			}
 	if (i==1){
-		extendbits=(extendbits >> leftmost| ~(0xFFFFFFFF >> leftmost));
-		finvalue = (imm | extendbits);
+		extendbits=(extendbits >> value->bits| ~(0xFFFFFFFF >> value->bits));
+		finalvalue->imm = (value->imm | extendbits);
 		}
 	if (i==0){
-		finvalue = imm ;
+		finalvalue->imm = value->imm ;
 		}
-	return finvalue;
+	finalvalue->bits = n;
+	return finalvalue;
 }
 
 
 //ThumbExpandIMM__//////////////////////////////////////////////////////////////////////
-unsigned int thumbexpandIMM(unsigned int imm12){ 		//ici valeur immediate sur 12bits
+IMMEDIATE thumbexpandIMM(IMMEDIATE imm12){ 		//ici valeur immediate sur 12bits
 	// APSR.C argument to following function call does not affect the imm32 result.
 	return *thumbexpandIMM_c(imm12,APSR.C);														// >>> à inclure le chemin vers l'interpreteur
 	}
 
 
 //ThumbExpandIMM_C//////////////////////////////////////////////////////////////////////
-(unsigned int, 'bit') thumbexpandIMM_c(unsigned int imm12,REGISTRE* "carryin"){
+( IMMEDIATE , 'bit') thumbexpandIMM_c(unsigned int imm12,REGISTRE* "carryin"){
 	
 	unsigned int unrotated_value=0;
 	unsigned int carryout=0;
 	unsigned int imm32 =0;
 		
 	if ((imm12 & 0x0C00)==0x0){
-		switch (imm12 & 0x0300){
+	   switch (imm12 & 0x0300){
 			case 0x0:
 				imm32 = immediate("7-0",imm12);
 				break;
@@ -148,8 +162,10 @@ unsigned int thumbexpandIMM(unsigned int imm12){ 		//ici valeur immediate sur 12
 			
 		
 //CONCATENATE16	//////////////////////////////////////////////////////////////////////
-int concatenate16
-
+IMMEDIATE concatenate16(IMMEDIATE valbrut){
+  valbrut->bits=16;
+  return valbrut;
+}
 
 //CODE OF SHIFT AND ROTATE OPERATIONS//////////////////////////////////////////////////
 unsigned int LSL(unsigned int imm , int shift){						//left shift without carry
@@ -188,9 +204,9 @@ unsigned int LSR_C(unsigned int imm, int shift){					//right shift with carry
 	
 unsigned int ASR(unsigned int imm,int sizeofimm,int shift){
 	
-	
+    
 	
 return (result, carry_out);
 
-
+ IMMEDI
 
