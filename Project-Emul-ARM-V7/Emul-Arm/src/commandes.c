@@ -293,7 +293,7 @@ int _setcmd_reg(interpreteur inter,char* endroit,unsigned int valeur){			// Modi
 int _assert_cmd(char* string, char* type , unsigned int val) {
 
 
-    if (string==NULL || type==NULL || val==NULL) {
+    if (string==NULL || type==NULL ) {
         WARNING_MSG("Erreur command assert");
         return 1;
     }
