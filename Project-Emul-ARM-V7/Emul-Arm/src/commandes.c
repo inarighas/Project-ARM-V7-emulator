@@ -120,24 +120,22 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
 
     for (i=0; i<NB_SECTIONS; i++) {
         printf("\n***** Processing section named %s\n", section_names[i]);
-
-
         byte* content = elf_extract_scn_by_name(ehdr, pf_elf, section_names[i], &taille, NULL );
-
+        inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments);
         if (content!=NULL) {
             printf("nsegments :: %d \n",nsegments);
             print_section_raw_content(section_names[i],next_segment_start,content,taille);
-            inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments);
+
             next_segment_start+= ((taille+0x1000)>>12 )<<12; // on arrondit au 1k suppérieur
             nsegments++;
 
-            // copier le contenu dans la memoire avant de liberer
-            //  inter->memory=ajout_seg_map(inter->memory,section_names[i],next_segment_start,taille,nsegments-1);
 
-            ((inter->memory)[nsegments-1]->flag)=1;
-            ((inter->memory)[nsegments-1]->contenu)=content;
-            ((inter->memory)[nsegments-1]->taille)=taille+1;
-            ((inter->memory)[nsegments-1]->taille_max)=next_segment_start-((inter->memory)[nsegments-1]->adresse_initiale);
+            // copier le contenu dans la memoire avant de liberer
+
+            ((inter->memory)[nsegments-1]->flag) = 1;
+            ((inter->memory)[nsegments-1]->contenu) = content;
+            ((inter->memory)[nsegments-1]->taille) = taille;
+            ((inter->memory)[nsegments-1]->taille_max) = 0x1000;
             affiche_segment(inter->memory[nsegments-1],NULL,NULL);
             //free(content);
         }
@@ -150,7 +148,7 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
 
     // allouer la pile (et donc modifier le nb de segments)
     unsigned int adrdebut=strtol("0xfffff000",NULL,16);
-    inter->memory=ajout_seg_map(inter->memory,"STACK/HEAP",adrdebut,100000,PLACESTHEAP);      // en deci 68585222144
+    inter->memory=ajout_seg_map(inter->memory,"STACK/HEAP",adrdebut,0x100000,PLACESTHEAP);      // en deci 68585222144
     ((inter->memory)[PLACESTHEAP]->flag)=1;
     ((inter->memory)[PLACESTHEAP]->contenu)=NULL;
     ((inter->memory)[PLACESTHEAP]->taille)=0;
@@ -220,15 +218,11 @@ void _set_mem_byte_cmd(interpreteur inter, unsigned int adresse, char valeur) {
 void _set_mem_word_cmd(interpreteur inter, unsigned int adresse, unsigned int valeur) {
     SEGMENT seg;
     int i=0;
-    char bytes[4];
-    bytes[0] = (valeur >> 24) & 0xFF;
-    bytes[1] = (valeur >> 16) & 0xFF;
-    bytes[2] = (valeur >> 8) & 0xFF;
-    bytes[3] = valeur & 0xFF;
+    char bytes[2];
+    bytes[1] = (valeur >> 8) & 0xFF;
+    bytes[0] = valeur & 0xFF;
     for(i=0; i<3; i++) {
         seg = (inter->memory)[i];
-        seg = change_val_seg(seg,adresse+3,bytes[3]);
-        seg = change_val_seg(seg,adresse+2,bytes[2]);
         seg = change_val_seg(seg,adresse+1,bytes[1]);
         seg = change_val_seg(seg,adresse,bytes[0]);
     }

@@ -53,7 +53,7 @@ typedef struct
 {
     int op[4];
     unsigned int code;
-    unsigned char setflag, shift, blockIT;
+    unsigned char setflag, shift, blockIT,condition;
     TYPE_INST *inst;
 
 } DESASM_INST;
@@ -63,11 +63,11 @@ typedef struct
 
 
 //Fonction desassemblage
-
+ 
 int is_32(char*instr_ptr);
-unsigned int immediate (char* s ,unsigned int code);
+unsigned int extract_uint(char* s ,unsigned int code);
 void cond(TYPE_INST *instruction, unsigned int code);
-int IT(TYPE_INST* inst, unsigned int code);
+int IT(DESASM_INST inst, unsigned int code);
 char* registre_extract(char* s , unsigned int code);
 int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr);
 

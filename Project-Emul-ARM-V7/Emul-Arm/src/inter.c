@@ -588,7 +588,7 @@ int setcmd(interpreteur inter) {
     unsigned int adresse =0;
     unsigned int valeur=0;
     char* registre=NULL;
-    char apsrsaisi[20]={0};
+    char apsrsaisi[20]= {0};
     char octet=0;
 
     if((token = get_next_token(inter)) == NULL) {

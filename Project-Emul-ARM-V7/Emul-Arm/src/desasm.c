@@ -27,9 +27,9 @@ int is_32(char*instr_ptr) {
     return 0;
 }
 
-unsigned int immediate (char* s ,unsigned int code) {
+unsigned int extract_uint (char* s ,unsigned int code) {
     unsigned int debut,fin,val;
-    unsigned int nb_bits;
+    unsigned int nb_bits=0;
     char* token;
     char* str=strdup(s);
     token = strtok(str,":");
@@ -58,7 +58,7 @@ char* registre_extract(char* s , unsigned int code) {
 
     nomregistre=calloc(5,sizeof(char));
 
-    indice=immediate(s,code);
+    indice=extract_uint(s,code);
     sprintf(nomregistre,"R%d",indice);
     return nomregistre;
 }
@@ -72,7 +72,7 @@ char* registre_extract(char* s , unsigned int code) {
 void cond(TYPE_INST *instruction, unsigned int code) {
     unsigned int condition =0;
     if(strcmp(instruction->mnemo,"B") == 0) {
-        condition = immediate("11-8",code);
+        condition = (code & 0xF00) >> 8;
         if(condition == EQ) strcpy(instruction->mnemo,"BEQ");
         if(condition == NE) strcpy(instruction->mnemo,"BNE");
         if(condition == CS) strcpy(instruction->mnemo,"BCS");
@@ -92,34 +92,46 @@ void cond(TYPE_INST *instruction, unsigned int code) {
     return;
 }
 
-    int IT(TYPE_INST* inst, unsigned int code){
-        if(strcmp(inst->mnemo, "IT") == 0){
-            unsigned int firstcond0 = immediate("4",code);
+    int IT(DESASM_INST desasm_inst, unsigned int code){
+        if(strcmp(desasm_inst.inst->mnemo, "IT") == 0){
+            unsigned int firstcond0 = (0x10 & code)>>4;
             unsigned int mask[4];
-            mask[0] = immediate("0", code);
-            mask[1] = immediate("1", code);
-            mask[2] = immediate("2", code);
-            mask[3] = immediate("3", code);
+            mask[0] = (0x1 & code);
+            mask[1] = (0x2 & code)>>1;
+            mask[2] = (0x4 & code)>>2;
+            mask[3] = (0x8 & code)>>3;
 
-            if(mask[3]==0 && mask[2]==0 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "IT");
-            if(mask[3]==firstcond0 && mask[2]==1 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "ITT");
-            if(mask[3]==(!firstcond0) && mask[2]==0 && mask[10]==0 && mask[0]==0)strcpy(inst->mnemo, "ITE");
-            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITTT");
-            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITET");
-            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "ITTE");
-            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==1 && mask[0]==0)strcpy(inst->mnemo, "IEE");
-            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITTTT");
-            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITETT");
-            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITTET");
-            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==firstcond0 && mask[0]==1)strcpy(inst->mnemo, "ITEET");
-            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITTTE");
-            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITETE");
-            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITTEE");
-            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[10]==(!firstcond0) && mask[0]==1)strcpy(inst->mnemo, "ITEEE");
+            desasm_inst.blockIT = (0xF & code);
+            desasm_inst.condition = (0xF0 & code)>>4;
+
+            DEBUG_MSG("code = %X %X %X %X",extract_uint("15-12",code), extract_uint("11-8", code), extract_uint("7-4", code), extract_uint("3-0", code));
+            DEBUG_MSG("mask = %X%X%X%X", extract_uint("3",code), extract_uint("2",code),extract_uint("1",code),extract_uint("0", code));
+
+            DEBUG_MSG("block_IT : %X",desasm_inst.blockIT);
+            DEBUG_MSG("condition : %X",desasm_inst.condition);
+
+            if(mask[3]==0 && mask[2]==0 && mask[1]==0 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "IT");
+            if(mask[3]==firstcond0 && mask[2]==1 && mask[1]==0 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "ITT");
+            if(mask[3]==(!firstcond0) && mask[2]==0 && mask[10]==0 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "ITE");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[1]==1 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "ITTT");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[1]==1 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "ITET");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[1]==1 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "ITTE");
+            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[1]==1 && mask[0]==0)strcpy(desasm_inst.inst->mnemo, "IEE");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[1]==firstcond0 && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITTTT");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[1]==firstcond0 && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITETT");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[1]==firstcond0 && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITTET");
+            if(mask[3]==(!firstcond0) && mask[2]==(!firstcond0) && mask[1]==firstcond0 && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITEET");
+            if(mask[3]==firstcond0 && mask[2]==firstcond0 && mask[1]==(!firstcond0) && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITTTE");
+            if(mask[3]==(!firstcond0) && mask[2]==firstcond0 && mask[1]==(!firstcond0) && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITETE");
+            if(mask[3]==firstcond0 && mask[2]==(!firstcond0) && mask[1]==(!firstcond0) && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITTEE");
+            if(mask[3]==!firstcond0 && mask[2]==!firstcond0 && mask[1]==!firstcond0 && mask[0]==1)strcpy(desasm_inst.inst->mnemo, "ITEEE");
             return 1;
     }
     else return 0;
 }
+
+
+
 
 int affiche_instruction_1operande(DESASM_INST* stockage_inst, int indice, unsigned int code) {
     printf ("\t \t----> %s \t ",stockage_inst[indice].inst->mnemo);
@@ -128,7 +140,7 @@ int affiche_instruction_1operande(DESASM_INST* stockage_inst, int indice, unsign
         printf("%s\n",registre_extract(stockage_inst[indice].inst->champop1, code));
         break;
     case 2:
-        printf("%X\n",immediate(stockage_inst[indice].inst->champop1, code));
+        printf("%X\n",extract_uint(stockage_inst[indice].inst->champop1, code));
         break;
     default:
         printf("NEVER SHOULD BE HERE\n");
@@ -159,7 +171,7 @@ int affiche_instruction_2operandes(DESASM_INST* stockage_inst, int indice, unsig
         printf("%s\n",registre_extract(stockage_inst[indice].inst->champop2 , code));
         break;
     case 2:
-        printf("%X\n",immediate(stockage_inst[indice].inst->champop2, code));
+        printf("%X\n",extract_uint(stockage_inst[indice].inst->champop2, code));
         break;
     default:
         printf("NEVER SHOULD BE HERE\n");
@@ -177,7 +189,7 @@ int affiche_instruction_3operandes(DESASM_INST* stockage_inst, int indice, unsig
         printf("%s",registre_extract(stockage_inst[indice].inst->champop1, code));
         break;
     case 2:
-        printf("%X",immediate(stockage_inst[indice].inst->champop1, code));
+        printf("%X",extract_uint(stockage_inst[indice].inst->champop1, code));
         break;
     default:
         printf("NEVER SHOULD BE HERE\n");
@@ -191,7 +203,7 @@ int affiche_instruction_3operandes(DESASM_INST* stockage_inst, int indice, unsig
         printf("%s",registre_extract(stockage_inst[indice].inst->champop2, code));
         break;
     case 2:
-        printf("%X",immediate(stockage_inst[indice].inst->champop2, code));
+        printf("%X",extract_uint(stockage_inst[indice].inst->champop2, code));
         break;
     default:
         printf("NEVER SHOULD BE HERE\n");
@@ -205,7 +217,7 @@ int affiche_instruction_3operandes(DESASM_INST* stockage_inst, int indice, unsig
         printf("%s\n",registre_extract(stockage_inst[indice].inst->champop3 , code));
         break;
     case 2:
-        printf("%X\n",immediate(stockage_inst[indice].inst->champop3, code));
+        printf("%X\n",extract_uint(stockage_inst[indice].inst->champop3, code));
         break;
     default:
         printf("NEVER SHOULD BE HERE\n");
@@ -249,6 +261,16 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
 
     if (seg==NULL) {
         WARNING_MSG("Segment inexistant pour desassembler");
+        return 1;
+    }
+
+    if (adrdep<(seg->adresse_initiale)) {
+        WARNING_MSG("Adresse de départ incorrecte");
+        return 1;
+    }
+
+    if (adrarr>((seg->adresse_initiale)+(seg->taille))) {
+        WARNING_MSG("Adresse d'arrivée incorrecte");
         return 1;
     }
 
@@ -301,7 +323,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
     affiche_segment(seg, NULL, NULL);*/
     // ------------------------------------------------------------
     step=dep;
-    while((step<arr) || i<1000) {															//--------------------------
+    while((step<arr) || i<1000) {											 				//--------------------------
 
         DEBUG_MSG("step = 0x%X",step);
         if(step>arr) break;
@@ -320,11 +342,8 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
             }
             //-------------------------------------------------------------------------------
             code32 |= ((*(step+1)	<< 24)&(0xFF000000));						// Little indian ? normalement oui
-            //printf("\ncode apres1 concat: %X\n",(seg->contenu[0] << 24));
             code32 |= ((*(step+0)	<< 16)&(0x00FF0000));
-            //printf("\ncode apres2 concat: %X\n",code);
             code32 |= ((*(step+3)	<< 8 )&(0x0000FF00));
-            //printf("\ncode apres3 concat: %X\n",(seg->contenu[2] << 8));
             code32 |= ((*(step+2)	<< 0 )&(0x000000FF));
             code = code32;
             pas = 4;

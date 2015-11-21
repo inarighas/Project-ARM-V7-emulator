@@ -187,7 +187,7 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
 
     //unsigned int hexval=0;
     // char* str;    //not used
-    int lim =0;
+    int lim =(seg->adresse_initiale)+(seg->taille);
 
     //if(hex!=NULL) hexval=strtol(hex,NULL,16);
 
@@ -196,7 +196,7 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
         return NULL;
     }
 
-    else if (hexval>(seg->adresse_initiale)+(seg->taille_max)) {
+    else if (hexval>(seg->adresse_initiale)+(seg->taille_max)-1) {
         WARNING_MSG("case introuvable dans ce segment{%s} ",seg->nom);
         return NULL;
     }
