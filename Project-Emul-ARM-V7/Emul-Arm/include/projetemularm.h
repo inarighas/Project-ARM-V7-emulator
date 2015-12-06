@@ -2,13 +2,15 @@
 #define _PROJETEMULARM_H_
 
 /* la librairie readline */
-#include <readline/readline.h>
-#include <readline/history.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "registre.h"
 #include "memory.h"
@@ -23,8 +25,6 @@
 #include "inter.h"
 #include "commandes.h"
 #include "desasm.h"
-
-
-
+#include "format_op.h"
 
 #endif

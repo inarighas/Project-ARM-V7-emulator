@@ -467,14 +467,15 @@ int dispcmd(interpreteur inter) {
         }
 
         else {
+	  DEBUG_MSG("Affichage de registres singuliers");
+	  printf("Nom \t \t Taille \t \t Valeur\n");
             while(token != NULL) {
                 if(is_reg(token) != 0) {
-                    if (get_next_token(inter)!= NULL) {
+		  /*if (get_next_token(inter)!= NULL) {
                         WARNING_MSG("Commande Incorrecte");
                         return 1;
-                    }
-                    DEBUG_MSG("appel fct affiche reg singulier");
-                    return _dispcmd(token,inter,NULL,NULL);
+			}*/
+		    _dispcmd(token,inter,NULL,NULL);
                     token = get_next_token(inter);
                 }
                 else {
@@ -482,6 +483,7 @@ int dispcmd(interpreteur inter) {
                     return 1;
                 }
             }
+	    return CMD_OK_RETURN_VALUE;
         }
     }
 

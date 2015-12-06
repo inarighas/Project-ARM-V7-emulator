@@ -54,14 +54,14 @@ int _dispcmd(char*string,interpreteur inter,char * adrdep,char*adrarr) {
 
     else if( (r=trouve_registre(string,*(inter->fulltable)))!=NULL) {
         afficher_registre(r);
-        if (string==NULL) return CMD_OK_RETURN_VALUE;
+        if (string!=NULL) return CMD_OK_RETURN_VALUE;
     }
     else if( strcmp(string,"apsr")==0) {
         afficher_table_registre_etat(inter->fulltable[1]);
-        if (string==NULL) return CMD_OK_RETURN_VALUE;
+        if (string!=NULL) return CMD_OK_RETURN_VALUE;
     }
 
-    printf("SHOULD NEVER BE HERE \n");
+    WARNING_MSG("Registre \"%s\" inconnu",string);
     return 1;
 }
 

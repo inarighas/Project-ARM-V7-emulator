@@ -2,13 +2,15 @@
 #define _INTER_H_
 
 
-#include <readline/readline.h>
-#include <readline/history.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
+
 
 #include "registre.h"
 #include "memory.h"
