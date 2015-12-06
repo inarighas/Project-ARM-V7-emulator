@@ -2,10 +2,9 @@
 #include "format-op.h"
 
 
-
 void affiche_immediate(IMMEDIATE  value) {
     if (value == NULL) printf("Pointeur IMMEDIATE null \n");
-    printf(" Valeur immediate 0b-%x ## Nombre de bits %d \n",value->imm, value->bits);
+    printf(" Valeur immediate 0x%X ## Nombre de bits %d \n",value->imm, value->bits);
 }
 
 IMMEDIATE immediate(char* str ,unsigned int code) {
@@ -135,33 +134,36 @@ IMMEDIATE thumbexpandIMM_c(IMMEDIATE imm12,unsigned int* carry) {
     IMMEDIATE imm32 = calloc(1,sizeof(*imm32));
 
     if ((imm12->imm & 0x0C00)==0x0) {
-        switch (imm12->imm & 0x0300) {
-        case 0x0:
+        switch ((imm12->imm & 0x300)) {
+        case 0x000:
             imm32 = immediate("7-0",imm12->imm);
 	    	imm32->bits=32;
             break;
-        case 0x1:
+        case 0x100:
 	  if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-	  imm32->imm = (((imm12->imm) << 16) | (imm12->imm));
+      imm32 = immediate("7-0",imm12->imm);
+	  imm32->imm = (((imm32->imm) << 16) | (imm32->imm));
 	  imm32->bits=32;
             break;
-        case 0x2:
+        case 0x200:
 	  if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-	  imm32->imm = (((imm12->imm) << 24) | ((imm12->imm) << 8));
+      imm32 = immediate("7-0",imm12->imm);
+	  imm32->imm = (((imm32->imm) << 24) | ((imm32->imm) << 8));
 	  imm32->bits = 32;
             break;
-        case 0x3:
+        case 0x300:
 	 	 if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-            imm32->imm = ((imm12->imm << 24) | (imm12->imm << 16) | (imm12->imm << 8) | (imm12->imm << 8));
+        imm32 = immediate("7-0",imm12->imm);
+        imm32->imm = ((imm32->imm << 24) + (imm32->imm << 16) + (imm32->imm << 8) + (imm32->imm << 0));
 	    imm32->bits=32;
             break;
         default:
