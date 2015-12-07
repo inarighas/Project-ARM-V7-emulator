@@ -62,6 +62,8 @@ clean :
 	$(RM) -r $(DOCDIR)/*
 	$(RM) test/*/*.out
 
+leak :
+	valgrind --leak-check=full ./$(TARGET)
 # créé l'archive à envoyer à votre tuteur (pas de rar SVP! et interdiction absolu d'envoyer autre chose qu'une archive, il ne doit y avoir qu'un seul fichier joint dans l'e-mail !)
 archive : 
 	make clean 

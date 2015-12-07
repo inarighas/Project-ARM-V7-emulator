@@ -5,6 +5,91 @@
 #include "format_op.h"
 
 
+//Init_Dico//-------------------------------------------------------------------------------------------------------------------
+TYPE_INST** init_dico32(TYPE_INST** dico) {
+    int indice = 0;
+    FILE* fichier = fopen(DICO32,"r"); 			// Ouverture du dictionnaire à instruction 32
+    if(fichier == NULL) {
+        ERROR_MSG("\nOuverture du dico impossible\n");
+        return NULL;
+    }
+    dico = calloc(SIZE32,sizeof(*dico));
+    if(dico == NULL) {
+        ERROR_MSG("Allocation Error");
+        return NULL;
+    }
+    while(!feof(fichier) && indice<SIZE32) {
+      dico[indice] = calloc(1, sizeof(**dico));
+        if (dico[indice]==NULL){
+          ERROR_MSG("Erreur Allocation ");
+          return NULL;
+	}
+        fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",
+               (dico)[indice]->identifiant,
+               (dico)[indice]->mnemo,
+               &((dico)[indice]->taille),
+               &((dico[indice])->signature),
+               &((dico)[indice]->masque),
+               &((dico)[indice]->nb_operande),
+               &((dico)[indice]->typeop[1]),
+               &((dico)[indice]->typeop[2]),
+               &((dico)[indice]->typeop[3]),
+               &((dico)[indice]->typeop[4]),
+               (dico)[indice]->champop[1],
+               (dico)[indice]->champop[2],
+               (dico)[indice]->champop[3],
+               (dico)[indice]->champop[4]);
+	//printf("---> %s ",(dico[indice])->identifiant);
+	//printf("---> %X \n ",(dico[indice])->signature);
+        indice++;
+    }
+    fclose(fichier);
+    return dico;
+}
+/*---------------------------------------------------------------*/
+
+TYPE_INST** init_dico16(TYPE_INST** dico ) {
+    int indice =0;
+    FILE* fichier = fopen(DICO16,"r"); 			// Ouverture du dictionnaire à instruction 16
+    if(fichier == NULL) {
+        ERROR_MSG("\nOuverture du dico impossible\n");
+        return NULL;
+    }
+    dico = calloc(SIZE16,sizeof(*dico));
+    if (dico == NULL) {
+        ERROR_MSG("Error Allocation");
+        return NULL;
+    }
+    while( !feof(fichier) && indice<SIZE16 ) {
+          dico[indice]= calloc(1, sizeof(**dico));
+          if (dico[indice]==NULL){
+	      ERROR_MSG("Erreur Allocation ");
+          	return NULL;
+                }
+        fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",
+               (dico)[indice]->identifiant,
+               (dico)[indice]->mnemo,
+               &((dico)[indice]->taille),
+               &((dico)[indice]->signature),
+               &((dico)[indice]->masque),
+               &((dico)[indice]->nb_operande),
+               &((dico)[indice]->typeop[1]),
+               &((dico)[indice]->typeop[2]),
+               &((dico)[indice]->typeop[3]),
+               &((dico)[indice]->typeop[4]),
+               (dico)[indice]->champop[1],
+               (dico)[indice]->champop[2],
+               (dico)[indice]->champop[3],
+               (dico)[indice]->champop[4]);
+	//printf("---> %s \n",(dico[indice])->identifiant);
+        indice++;
+    }
+    fclose(fichier);
+    return dico;
+}
+
+
+
 // If 32bit Instruction //------------------------------------------------------------------------------------------------------------------
 int is_32(char*instr_ptr) {
     //char*instr_ptr =get_byte_seg(seg,adr);
@@ -142,6 +227,8 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
     int shift_n[1];
     IMMEDIATE type;
     int carry[1];
+    char* tmp_reg = NULL;
+    IMMEDIATE tmp_imm = NULL;
     *shift_t =0 ;
     *shift_n = 0;
     *carry=0;
@@ -153,16 +240,18 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
 
     switch(stockage_inst[indice].inst->typeop[indice_operande]) {
     case RGSTR:
-        (stockage_inst[indice].op)[indice_operande]->register_name=strdup(registre_extract_imm(stockage_inst[indice].inst->champop[indice_operande],code));
+      tmp_reg = registre_extract_imm(stockage_inst[indice].inst->champop[indice_operande],code);
+      (stockage_inst[indice].op)[indice_operande]->register_name=strdup(tmp_reg);
         //DEBUG_MSG("Operande N° %d: %s",indice_operande,(stockage_inst[indice].op)[indice_operande]->register_name);
-	printf(" %s ",(stockage_inst[indice].op)[indice_operande]->register_name);
+        printf(" %s ",(stockage_inst[indice].op)[indice_operande]->register_name);
+	free(tmp_reg);
         break;
     case IMMEDIATE32:
         local = (immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code));
         local->bits =32;
         (stockage_inst[indice].op)[indice_operande]->unsigned_value = local;
         //DEBUG_MSG("Operande N° %d: #%u",indice_operande,(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
+        printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
         break;
     case IMMEDIATE32P00:
         local =(immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code));
@@ -170,29 +259,29 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
         local->bits = 32;
         (stockage_inst[indice].op)[indice_operande]->unsigned_value = local;
         //DEBUG_MSG("Operande N° %d: #%u",indice_operande,(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	free(local);
+        printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
+        //free(local);
         break;
 
     case THEXPIMM:
-       local = immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code);
-        //    affiche_immediate(local);            
+        local = immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code);
+        //    affiche_immediate(local);
         local = thumbexpandIMM(local);
         (stockage_inst[indice].op)[indice_operande]->unsigned_value = local;
         //DEBUG_MSG("Operande N° %d: #%u ",indice_operande,(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	free(local);
+        printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
+        //free(local);
         break;
 
     case THEXPIMM_C:
-      local = immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code);
+        local = immediate(((stockage_inst[indice].inst)->champop)[indice_operande],code);
         unsigned int i = 0;                                      //--------------------------->>> Inclure Registre
-	//	affiche_immediate(local);   
+        //	affiche_immediate(local);
         local = thumbexpandIMM_c(local , &i);
         (stockage_inst[indice].op)[indice_operande]->unsigned_value = local;
         //DEBUG_MSG("Operande N° %d: #%u  --- CarryOut: %d",indice_operande,(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm,i);
-	printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	free(local);
+        printf(" #%u ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
+        //free(local);
         break;
 
     case SGNEXTP0:
@@ -202,8 +291,8 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
         local->bits = 32;
         (stockage_inst[indice].op)[indice_operande]->unsigned_value = local;
         //DEBUG_MSG("Operande N° %d: #%d",indice_operande,(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	printf(" #%d ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
-	free(local);
+        printf(" #%d ",(stockage_inst[indice].op)[indice_operande]->unsigned_value->imm);
+        //free(local);
         break;
 
     case DECIMMSHFT:
@@ -212,8 +301,8 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
         decodeIMMshift(type,local,shift_t,shift_n);
         free(local);
         //DEBUG_MSG("Operande N° %d shift :#%u",indice_operande,*shift_n);
-	printf("{ %s #%u }",TYPE_ENUM[type->imm],*shift_n);
-	free(type);
+        printf("{ %s #%u }",TYPE_ENUM[type->imm],*shift_n);
+        free(type);
         break;
 
 
@@ -223,7 +312,7 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
         local->bits=0;
         (stockage_inst[indice].op)[indice_operande]->unsigned_value=local;
         printf(" Operande '%d'  inconnu",indice_operande);
-	free(local);
+        free(local);
         break;
     }
     return  stockage_inst;
@@ -235,7 +324,11 @@ DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_ope
 
 DESASM_INST* lecture_txt(SEGMENT seg) {
     DESASM_INST* tableau_instruction = NULL;
-    FILE *fichier =NULL;
+    TYPE_INST** dico16 = NULL;
+    TYPE_INST** dico32 = NULL;
+    TYPE_INST** dico = NULL;
+    int indiceinst =0 ;
+    int sizeinst = 0;
     char* step;
     char* arr;
     int indice=0;
@@ -246,20 +339,18 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
     int i=0;
     int pas =0;
     unsigned int adresse_actuelle = 0;
-    
-    tableau_instruction = calloc(2,sizeof(*tableau_instruction));
-    tableau_instruction[0].inst = calloc(1,sizeof(*(tableau_instruction[0].inst)));
-    if(tableau_instruction[0].inst == NULL) {
-        WARNING_MSG("Erreur allocation du type instruction");
-        return NULL;
-    }
-
+                dico16 = init_dico16(dico16);
+                dico32 = init_dico32(dico32);
+		DEBUG_MSG("Chargement Dictionnaire Instruction : FAIT");
+		//	if(dico32 != NULL) printf("\t Exemple \t %s \n",(dico32[2])->identifiant);
+		//	else WARNING_MSG("TOTO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    tableau_instruction = calloc(1,sizeof(*tableau_instruction));
 
     step=seg->contenu;
     arr=(&(seg->contenu[(seg->taille)]))-1;
 
     while((step<arr) || i<1000) {                                            //-----------------------------------------
-      adresse_actuelle = (seg->adresse_initiale)+(step-(seg->contenu));
+        adresse_actuelle = (seg->adresse_initiale)+(step-(seg->contenu));
         if(tableau_instruction == NULL) {
             WARNING_MSG("Erreur allocation du type instruction");
             return NULL;
@@ -270,16 +361,10 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
         if(step>arr) break;
 
         //CAS INTERUCTION 32 BITS//
-	printf(" 0x%X \t", adresse_actuelle);
+        printf(" 0x%X \t", adresse_actuelle);
         if(is_32(step+1) == 1) {
 	  //DEBUG_MSG("-Instruction sur 32 bits-");
-            fichier = fopen(DICO32,"r"); 			// Ouverture du dictionnaire à instruction 32
-            // Test etat ouverture dictionnaire----------------------------------------------
-            if(fichier == NULL) {
-                WARNING_MSG("\nOuverture du dico impossible\n");
-                free(tableau_instruction);
-                return NULL;
-            }
+
             //-------------------------------------------------------------------------------
             code32 |= ((*(step+1)	<< 24)&(0xFF000000));
             code32 |= ((*(step+0)	<< 16)&(0x00FF0000));
@@ -289,75 +374,65 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
             pas = 4;
             tableau_instruction[indice].code = code;
             //INFO_MSG("Code copié : %X",tableau_instruction[indice].code);
-	    	  printf(" %X \t",code);
+            printf(" %X \t",code);
+	    dico = dico32;
+	    sizeinst = SIZE32;
         }
 
 
         //CAS INSTRUCTION 16 BITS//
         else if (is_32(step+1) == 0) {
 	  //DEBUG_MSG("-Instruction sur 16 bits-");
-            fichier = fopen(DICO16,"r"); 			// Ouverture du dictionnaire à instruction 16
 
-            // Test etat ouverture dictionnaire----------------------------------------------
-            if(fichier == NULL) {
-                WARNING_MSG("\nOuverture du dico impossible\n");
-                free(tableau_instruction);
-                return NULL;
-            }
+            /*       fichier = fopen(DICO16,"r"); 			// Ouverture du dictionnaire à instruction 16
+
+                       // Test etat ouverture dictionnaire----------------------------------------------
+                       if(fichier == NULL) {
+                           WARNING_MSG("\nOuverture du dico impossible\n");
+                           free(tableau_instruction);
+                           return NULL;
+                       }*/
             code16 |= ((*(step+1)	<< 8)&(0xFF00));
-
             code16 |= ((*(step+0)	<< 0)&(0x00FF));
-
             code = code16;
             pas = 2;
             tableau_instruction[indice].code = code;
             //INFO_MSG("Code copié : %X",tableau_instruction[indice].code);
-	    	  printf(" %x \t\t",code);
+            printf(" %X \t\t",code);
+	    dico = dico16;
+	    sizeinst = SIZE16;
         }
 
         else {
-            WARNING_MSG("Erreur identification de l'instruction");
+	  WARNING_MSG("Erreur identification de l'instruction");
             return NULL;
         }
-	
+
         // supression alloc vers début fct
-        while(success == 0 && !feof(fichier)) {
-            fscanf(fichier,"%s %s %d %X %X %d %d %d %d %d %s %s %s %s",
-                   tableau_instruction[indice].inst->identifiant,
-                   tableau_instruction[indice].inst->mnemo,
-                   &tableau_instruction[indice].inst->taille,
-                   &tableau_instruction[indice].inst->signature,
-                   &tableau_instruction[indice].inst->masque,
-                   &tableau_instruction[indice].inst->nb_operande,
-                   &tableau_instruction[indice].inst->typeop[1],
-                   &tableau_instruction[indice].inst->typeop[2],
-                   &tableau_instruction[indice].inst->typeop[3],
-                   &tableau_instruction[indice].inst->typeop[4],
-                   tableau_instruction[indice].inst->champop[1],
-                   tableau_instruction[indice].inst->champop[2],
-                   tableau_instruction[indice].inst->champop[3],
-                   tableau_instruction[indice].inst->champop[4]);
+	indiceinst = 0;
+        while(success == 0 && indiceinst < sizeinst) {
+	  if( ((dico[indiceinst]->signature) & (dico[indiceinst]->masque)) == (code & (dico[indiceinst]->masque))) {
+	           success = 1; 
+	           tableau_instruction[indice].inst = dico[indiceinst];
+	         }
+	  indiceinst++;
+	}
+        cond(dico[indiceinst], tableau_instruction[indice].code);				//si mnemo == B, on remplace B par BEQ ou BNE ou .....
 
-            //--------------------------------------------------> NE PAS OUBLIER L'ORDRE !!!
-
-            if((((tableau_instruction[indice].inst)->signature)&((tableau_instruction[indice].inst)->masque))==(code & (tableau_instruction[indice].inst)->masque))    success = 1;
-        }
-
-        cond(tableau_instruction[indice].inst, tableau_instruction[indice].code);				//si mnemo == B, on remplace B par BEQ ou BNE ou .....
-
-        if(strcmp(tableau_instruction[indice].inst->mnemo, "IT") == 0) {			//si mnemo == IT
+        if(strcmp((tableau_instruction[indice].inst)->mnemo, "IT") == 0) {			//si mnemo == IT
             IT(tableau_instruction[indice],tableau_instruction[indice].code);
         }
 
         if (success==1) {
-	  //DEBUG_MSG("tableau_instruction[%d].inst->nom = %s",indice,tableau_instruction[indice].inst->identifiant);
-	  printf(" %s ",tableau_instruction[indice].inst->mnemo);
+	  //DEBUG_MSG("tableau_instruction[%d].inst->nom = %s",indice,(tableau_instruction[indice].inst)->identifiant);
+            printf(" %s ",(tableau_instruction[indice].inst)->mnemo);
             //switch case suivant nombre d'opérandes
             int toto =0;
             for(toto=0; toto<4; toto++) {
-                tableau_instruction[indice].op[toto]=calloc(1,sizeof(*tableau_instruction[indice].op[toto]));
+	      tableau_instruction[indice].op[toto]=calloc(1,sizeof(*(tableau_instruction[indice].op[toto])));
+	      if((tableau_instruction[indice].op[toto])==NULL) ERROR_MSG("Erreur Alloc");
             }
-            switch (tableau_instruction[indice].inst->nb_operande) {
+            switch ((tableau_instruction[indice].inst)->nb_operande) {
             case 1:
                 tableau_instruction=get_operande(tableau_instruction,indice,1,tableau_instruction[indice].code);
                 puts(" ");
@@ -365,27 +440,27 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
 
             case 2:
                 tableau_instruction=get_operande(tableau_instruction,indice,1,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,2,tableau_instruction[indice].code);
                 puts(" ");
                 break;
 
             case 3:
                 tableau_instruction=get_operande(tableau_instruction,indice,1,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,2,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,3,tableau_instruction[indice].code);
                 puts(" ");
                 break;
 
             case 4:
                 tableau_instruction=get_operande(tableau_instruction,indice,1,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,2,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,3,tableau_instruction[indice].code);
-		printf(",");
+                printf(",");
                 tableau_instruction=get_operande(tableau_instruction,indice,4,tableau_instruction[indice].code);
                 puts(" ");
                 break;
@@ -398,7 +473,7 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
         }
 
         else if (success==0) {
-            WARNING_MSG("####Commande  introuvable#### ");
+            WARNING_MSG("####Commande  Introuvable#### ");
             WARNING_MSG("#ARRET DE DESASSEMBLAGE# ");
             return NULL;
         }
@@ -408,11 +483,28 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
         code32=0;
         code16=0;
         success=0;
+	indiceinst = 0;
         i++;
-        fclose(fichier);
-        fichier=NULL;
     }
 
+    int tmp = 0 ;
+    if(dico16 != NULL){
+      /* for(tmp = 0;tmp<SIZE16;tmp++) {
+	printf("%d",tmp); 
+	if(dico16[tmp]!=NULL) free(dico16[tmp]);
+	}*/
+      free(dico16);
+    }
+    if(dico32 != NULL){
+      /*for(tmp = 0;tmp<SIZE32;tmp++) {
+	printf("%d",tmp); 
+	if(dico32[tmp]!=NULL) free(dico32[tmp]);
+	}*/
+      free(dico32);
+    }
+    for(tmp=0;tmp<4;tmp++) {
+     if((tableau_instruction[0].op)[tmp]!= NULL) free(tableau_instruction[0].op[tmp]);
+    }
     return tableau_instruction;
 }
 
@@ -426,9 +518,7 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
 
     //FILE *fichier = NULL;
     DESASM_INST* stockage_inst= NULL;
-
     int indice = 0;
-
     char *dep=NULL;
     char *arr=NULL;
     char reponse=0;
@@ -476,8 +566,8 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
     if(dep==(seg->contenu))
         DEBUG_MSG("Desassemblage depuis le debut de {%s}",seg->nom);
     if(arr==&(seg->contenu)[seg->taille-1])
-        DEBUG_MSG("Desassemblage jusqu'à la fin de {%s}",seg->nom);
-
+      DEBUG_MSG("Desassemblage jusqu'à la fin de {%s}",seg->nom);
+    
     stockage_inst=lecture_txt(seg);
 
     if(stockage_inst==NULL) {
@@ -485,9 +575,8 @@ int _desasm_cmd(SEGMENT seg, unsigned int adrdep , unsigned int adrarr) {
         return 1;
     }
     //DEBUG_MSG("Indice : %d",indice);
-   
+
     free(stockage_inst);
     INFO_MSG("##FIN DU DESASSEMBLAGE##");
     return CMD_OK_RETURN_VALUE;
-
 }

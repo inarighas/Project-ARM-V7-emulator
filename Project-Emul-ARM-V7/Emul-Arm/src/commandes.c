@@ -77,7 +77,7 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
     char* section_names[NB_SECTIONS]= {TEXT_SECTION_STR,RODATA_SECTION_STR,DATA_SECTION_STR,BSS_SECTION_STR};
     scntab section_table;
     unsigned int nsegments;
-    int i=0;
+    int i=0,j=0;
     unsigned int type_machine;
     unsigned int endianness;   //little ou big endian
     unsigned int bus_width;    // 32 bits ou 64bits
@@ -108,6 +108,11 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
     elf_load_symtab(pf_elf, bus_width, endianness, &symtab);
 
     //TODO allouer la memoire virtuelle
+    if (inter->memory != NULL) {
+      DEBUG_MSG("Libération de la mémoire antérieure");
+      for(j=0;j<NBSEG;j++) free((inter->memory)[j]) ;
+      free(inter->memory);
+      }
     mem=init_memory_arm();
     inter->memory=mem;
 
@@ -150,13 +155,13 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
     unsigned int adrdebut=strtol("0xfffff000",NULL,16);
     inter->memory=ajout_seg_map(inter->memory,"STACK/HEAP",adrdebut,0x100000,PLACESTHEAP);      // en deci 68585222144
     ((inter->memory)[PLACESTHEAP]->flag)=1;
-    ((inter->memory)[PLACESTHEAP]->contenu)=NULL;
+    ((inter->memory)[PLACESTHEAP]->contenu)=calloc(1,sizeof(*((inter->memory)[PLACESTHEAP]->contenu)));
     ((inter->memory)[PLACESTHEAP]->taille)=0;
     affiche_segment(inter->memory[PLACESTHEAP],NULL,NULL);
     //stab32_print( symtab );
 
     // on fait le ménage avant de partir
-    //del_stab( symtab );
+    del_stab( symtab );
     del_scntab( section_table );
     fclose(pf_elf);
     puts("");
@@ -228,59 +233,6 @@ void _set_mem_word_cmd(interpreteur inter, unsigned int adresse, unsigned int va
     }
     return;
 }
-/*
-int _setcmd_mem(interpreteur inter,char* cas,char* endroit,unsigned int valeur){		// la valeur est un uint!!!!
-	char* mode=strdup(cas);
-	char valmodb=0;
-	char valmodw[2]={0};
-	unsigned int adresse=0;
-
-
-	if(strcmp(mode,"byte")==0) {
-		adresse=strtol(endroit,NULL,16);
-		valmodb=valeur;
-		change_val_seg((inter->memory)[PLACESTHEAP],adresse,valmodb);
-		affiche_segment((inter->memory)[PLACESTHEAP],NULL,NULL);
-		return CMD_OK_RETURN_VALUE;
-		}
-
-	else if(strcmp(mode,"word")==0) {
-		adresse=strtol(endroit,NULL,16);
-		valmodw[0] = (valeur >> 8) & 0xFF;
-		valmodw[1] = valeur & 0xFF;
-		change_plage_seg((inter->memory)[PLACESTHEAP],adresse,adresse+2,valmodw);
-		affiche_segment((inter->memory)[PLACESTHEAP],NULL,NULL);
-		return CMD_OK_RETURN_VALUE;
-		}
-	else {
-		ERROR_MSG("Should never be here! \n");
-		return 0;
-		}
-	}
-
-int _setcmd_reg(interpreteur inter,char* endroit,unsigned int valeur){			// Modifer valeur registre
-																// Valeur en u-int et endroit en string
-	REGISTRE regis = NULL;
-
-	if ((regis= trouve_registre(endroit,(inter->fulltable)[0]))!=NULL){							//trouver le registre
-		regis=modifier_valeur_reg(valeur,regis);											//Ensuite modifier sa valeur
-		afficher_table_registre((inter->fulltable)[0]);
-		return CMD_OK_RETURN_VALUE;
-		}
-
-	else {
-		//regis= trouve_registre(endroit,(inter->fulltable)[1]);
-		//regis=modifier_valeur_reg(valeur,regis);
-		afficher_table_registre((inter->fulltable)[0]);
-		return CMD_OK_RETURN_VALUE;
-		}
-
-	//else {
-		ERROR_MSG("Should never be here! \n");
-		return 0;
-		}*/
-/*}*/
-
 
 
 //Commande Assert----

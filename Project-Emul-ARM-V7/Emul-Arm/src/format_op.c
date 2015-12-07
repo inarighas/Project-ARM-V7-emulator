@@ -33,13 +33,14 @@ IMMEDIATE immediate(char* str ,unsigned int code) {
 
 
 char* registre_extract_imm(char* s , unsigned int code) {
-    unsigned int indice = 20;
+    IMMEDIATE indice = NULL;
     char* nomregistre;
 
     nomregistre=calloc(5,sizeof(char));
 
-    indice=(immediate(s,code))->imm;
-    sprintf(nomregistre,"R%d",indice);
+    indice=(immediate(s,code));
+    sprintf(nomregistre,"R%d",indice->imm);
+    free(indice);
     return nomregistre;
 }
 

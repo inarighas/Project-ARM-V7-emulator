@@ -24,8 +24,6 @@
 
 
 
-
-
 /* prompt du mode shell interactif */
 #define PROMPT_STRING "ARMShell : > "
 
@@ -83,6 +81,8 @@ typedef struct {
     char first_token;
     MAPMEM memory;
     REGISTRE ** fulltable;
+  //TYPE_INST* dico32;
+  //TYPE_INST* dico16;
 } * interpreteur;
 
 
@@ -105,8 +105,6 @@ int get_type(char* chaine)	;
 
 int _testcmd(int hexValue) ;
 int testcmd(interpreteur inter);
-
-
 int exitcmd(interpreteur inter) ;
 int loadcmd(interpreteur inter) ;
 int dispcmd(interpreteur inter) ;

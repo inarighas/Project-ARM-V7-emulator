@@ -9,11 +9,16 @@
 #include "memory.h"
 #include "registre.h"
 
-
+//taille table d'instruction
+#define SIZE16 27
+#define SIZE32 26
+//Emplacement dictionnaire txt
 #define DICO32 "dicos/dicos_champs/Dico32.txt"
 #define DICO16 "dicos/dicos_champs/Dico16.txt"
 #define NB 1
 
+
+//Liste de conditions
 #define EQ 0x0
 #define NE 0x1
 #define CS 0x2
@@ -71,16 +76,18 @@ typedef struct
 
 
 typedef struct
-{   unsigned int code;
+{   unsigned int adresse;
+    unsigned int code;
     unsigned char setflag, shift, blockIT,condition;
     OPERANDE op[4];
-    TYPE_INST *inst;
-
+    TYPE_INST* inst;
 } DESASM_INST;
 
 
 //Fonction desassemblage
- 
+TYPE_INST**  init_dico32(TYPE_INST** dico);
+TYPE_INST** init_dico16(TYPE_INST** dico);
+
 int is_32(char*instr_ptr);
 unsigned int extract_uint(char* s ,unsigned int code);
 DESASM_INST* get_operande(DESASM_INST* stockage_inst , int indice,int indice_operande, unsigned int code);

@@ -29,6 +29,7 @@ REGISTRE* init_table_registre(void);
 REGISTRE* init_table_registre_etat(void);
 void free_registre(REGISTRE p);
 void free_table_registre(REGISTRE* p);
+void free_table_registre_etat(REGISTRE* p);
 void afficher_registre(REGISTRE r);
 void afficher_table_registre(REGISTRE* T);
 void afficher_table_registre_etat(REGISTRE *t);

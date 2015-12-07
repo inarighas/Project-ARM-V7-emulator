@@ -4,6 +4,7 @@
 
 #include "inter.h"
 #include "commandes.h"
+#include "registre.h"
 
 /**
  * allocation et init interpreteur
@@ -17,6 +18,7 @@ interpreteur init_inter(void) {
     inter->fulltable = calloc(2,sizeof(*(inter->fulltable)));
     inter->fulltable[0]=init_table_registre();
     inter->fulltable[1]=init_table_registre_etat();
+    //dico32 = NULL; dico16 = NULL;
     return inter;
 }
 
@@ -25,8 +27,24 @@ interpreteur init_inter(void) {
  * @param inter le pointeur vers l'interpreteur à libérer
  */
 void del_inter(interpreteur inter) {
-    if (inter !=NULL)
-        free(inter);
+  int j = 0 ;
+  if (inter !=NULL){
+    if(inter->fulltable != NULL){
+      DEBUG_MSG("Libération tables de registres");
+      free_table_registre(inter->fulltable[0]);
+      free_table_registre_etat(inter->fulltable[1]);
+      }
+    free(inter->fulltable);
+    if (inter->memory != NULL) {
+      DEBUG_MSG("Libération de la mémoire antérieure");
+      for(j=0;j<NBSEG;j++) {
+	if(inter->memory[j] != NULL && ((inter->memory)[j]->contenu) != NULL) free((inter->memory)[j]->contenu);
+	free((inter->memory)[j]) ;
+      }
+      free(inter->memory);
+      }
+     free(inter);
+  }
 }
 
 /**
@@ -375,6 +393,8 @@ int loadcmd(interpreteur inter) {
         WARNING_MSG("Commande Incorrecte");
         return 1;
     }
+    if(nom_du_fichier != NULL) free(nom_du_fichier);
+    if(adresse_du_fichier != NULL) free(adresse_du_fichier);
     return CMD_OK_RETURN_VALUE;
 }
 

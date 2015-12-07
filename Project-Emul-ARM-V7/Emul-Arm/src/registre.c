@@ -4,7 +4,7 @@
 
 
 #include "registre.h"
-
+#include "common/notify.h"
 
 
 //Création registre unitaire avec taille à définir
@@ -77,7 +77,8 @@ void free_registre(REGISTRE p) {
     char *s;
     s=strdup(p->nom);
     free (p);
-    printf("registre %s libéré\n",s);
+    DEBUG_MSG("registre %s libéré\n",s);
+    free(s);
 }
 
 //Liberation de la table des registre
