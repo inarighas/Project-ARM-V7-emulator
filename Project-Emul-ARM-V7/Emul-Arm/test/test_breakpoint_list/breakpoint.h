@@ -2,20 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <inter.h>
-
-#define NO_ORDER -1
+//#include <inter.h>
+ 
 
 // Struct break point
-typedef struct{
-  int indice;
+typedef struct list{
   unsigned int stop_adr;
+  struct list* nxt;
 }*BREAKPOINT;
 
-// Struct list
-typedef struct{
-  BREAKPOINT br_point;
-  BREAKPOINT* nxt;
-}
 
 
+//Fonctions
+BREAKPOINT init_list_break(void);
+void free_break(BREAKPOINT p);
+BREAKPOINT add_list_break(BREAKPOINT list ,unsigned int p);
+BREAKPOINT free_break_list(BREAKPOINT list);
+BREAKPOINT dehead_list_break(BREAKPOINT list);
+BREAKPOINT depile_list_break(BREAKPOINT list);
+void affiche_break(BREAKPOINT pt);
+void affiche_list(BREAKPOINT list);
