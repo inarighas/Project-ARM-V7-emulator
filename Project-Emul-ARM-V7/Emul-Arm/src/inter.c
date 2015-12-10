@@ -781,126 +781,6 @@ int setcmd(interpreteur inter) {
 }
 
 
-/*if((token = get_next_token(inter)) == NULL){
-WARNING_MSG("[**Erreur**] 	Rentrez un parametre (reg ou mem)");
-return 1;
-}
-
-if(strcmp(token,"mem") == 0){
-DEBUG_MSG("Modifie un champs dans la memoire");
-
-if((token = get_next_token(inter)) == NULL){
-    WARNING_MSG("[**Erreur**] 	Rentrez un type (byte ou word)");	//!!! erreur------------------
-    return 1;
-}																		//--------------------sortie
-else if(strcmp(token,"byte") == 0){
-    DEBUG_MSG("Type : Byte\n");
-
-	token = get_next_token(inter);
-    //if((token = get_next_token(inter)) == NULL){									// correction
-	if(token == NULL){
-	WARNING_MSG("[**Erreur**] 	Rentrez une adresse hexadecimale");
-	return 1;
-	}
-
-    else if(get_type(token) == HEXA){
-	adresse = token;
-	DEBUG_MSG("Adresse à modifier = %s",adresse);
-	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("[**Erreur**] 	Rentrez la valeur a mettre a cette adresse");
-	    return 1;
-	}
-
-	else if(is_deci(token) == DECI){
-	    valeur = token;
-	    DEBUG_MSG("Nouvelle valeur = %s",valeur);
-	   	valfin=strtol(valeur,NULL,10);
-	 	return _setcmd_mem(inter,"byte",adresse,valfin);		// <<<<---------------------------A REFAIRE & FINIR
-	}  //int _setcmd_mem(interpreteur inter,char* cas,char* endroit,char* valeur)
-	else{
-	    WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
-	    return 1;
-	}
-    }
-    else{
-	WARNING_MSG("[**Erreur**] 	Rentrez une valeur hexadecimale");
-	return 1;
-    }
-}
-else if(strcmp(token,"word") == 0){
-    printf("type : word\n");
-    if((token = get_next_token(inter)) == NULL){
-	WARNING_MSG("[**Erreur**] 	Rentrez une adresse hexadecimale");
-	return 1;
-    }
-    else if(get_type(token) == HEXA){
-	adresse = strdup(token);
-	DEBUG_MSG("Adresse à modifier = %s\n",adresse);
-	if((token = get_next_token(inter)) == NULL){
-	    WARNING_MSG("[**Erreur**] 	Rentrez la valeur à mettre à cette adresse");
-	    return 1;
-	}
-	else if(get_type(token) == DECI){
-	    valeur = strdup(token);
-	    DEBUG_MSG("Nouvelle valeur = %s \n",valeur);
-	    return _setcmd_mem(inter,"word",adresse,valeur);
-	    //return _setcmd("word dans la memoire valeur sur deux octets");		// <<<<---------------------------A REFAIRE & FINIR
-	}
-	else{
-	    WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
-	    return 1;
-	}
-    }
-    else{
-	WARNING_MSG("[**Erreur**] 	Rentrez une valeur hexadecimale");
-	return 1;
-    }
-}
-else{
-    WARNING_MSG("[**Erreur**] 	Rentrez un type valide (byte ou word)");
-    return 1;
-}
- }
-
-
-
- else if(strcmp(token,"reg") == 0){
-printf("Modifie un registre\n");
-if((token = get_next_token(inter)) == NULL){
-    WARNING_MSG("[**Erreur**] 	Rentrez le nom d'un registre");
-    return 1;
-}
-else if(get_reg(token) == NULL){
-    WARNING_MSG("[**Erreur**] 	Rentrez le nom d'un registre valide");
-    return 1;
-}
-else{
-    registre = strdup(token);
-    DEBUG_MSG("Registre à modifier : %s \n",registre);
-    if((token = get_next_token(inter)) == NULL){
-	WARNING_MSG("[**Erreur**] 	Rentrez une valeur");
-	return 1;
-    }
-    else if(get_type(token) == DECI){
-	valeur = strdup(token);
-	DEBUG_MSG("Nouvelle valeur = %s \n",valeur);
-	valfin=strtol(valeur,NULL,10);
-	//return _setcmd("modifier registre -- > valeur sur unsigned int ");		// <<<<---------------------------A REFAIRE & FINIR
-    return _setcmd_reg(inter,registre,valfin);
-    }
-    else{
-	WARNING_MSG("[**Erreur**] 	Rentrez une valeur decimale entiere");
-	return 1;
-    }
-}
- }
-
- else{
-WARNING_MSG("[**Erreur**] 	Parametres non valides, rentrez mem ou reg");
-return 1;
-}
-return CMD_OK_RETURN_VALUE;
-}*/
 /* ********************** Commande Assert **************************** */
 int assertcmd(interpreteur inter) {
     char *token= NULL;
@@ -1102,6 +982,81 @@ int stepcmd(interpreteur inter) {
 }
 
 
+//-----------Commande Break : ----------------------------------------------------
+int breakcmd(interpreteur inter){
+  char* token = NULL;
+  unsigned int adresse[20];
+  int i = 0;
+  token = get_next_token(inter);
+  if (token == NULL){
+    WARNING_MSG("Rentrez un parametre del/add/list");
+    return 1;
+  }
+  if (strcmp(token,"add")==0){
+    token = get_next_token(inter);
+    i=0;
+    while (token!=NULL){
+      switch (get_type(token)) {
+      case HEXA32:
+      case HEXA8:
+        adresse[i]= strtol(token,NULL,16);
+	DEBUG_MSG("Adresse d'arret 0x%X",adresse[i]);
+	break;
+      default:
+	WARNING_MSG("Rentrez une adresse valable (Hexa 32bits)");
+	return 1;
+	break;
+      }
+      token=get_next_token(inter);
+      i++;
+    }
+    DEBUG_MSG("Appel fonction ajout Breakpoint");
+    return CMD_OK_RETURN_VALUE;
+  }
+  else if (strcmp(token,"del")==0){
+    token = get_next_token(inter);
+    i=0;
+    if ( (get_type(token) == HEXA32) || (get_type(token) == HEXA8)){
+	adresse[i]=strtol(token,NULL,16);
+	DEBUG_MSG("Adresse d'arret à del 0x%X",adresse[i]);
+	DEBUG_MSG("Appel fct suppresion unitaire");
+	token = get_next_token(inter);
+	if(token == NULL)  return CMD_OK_RETURN_VALUE;
+	else {
+	  WARNING_MSG("Rentrez une adresse valable (hexa 32bits)");
+	  return 1;
+	}
+    }
+      
+    else if (strcmp(token,"all")==0){
+      token = get_next_token(inter);
+    if(token !=NULL){
+      WARNING_MSG("Rentrez des bons paramètres");
+      return 1;
+    }
+      DEBUG_MSG("Appel fonction libération");
+      return CMD_OK_RETURN_VALUE;
+    }
+    else {
+      WARNING_MSG("Rentrz les bons paramètres");
+      return 1;
+    }
+  }
+  else if (strcmp(token,"list")==0){
+    token = get_next_token(inter);
+    if(token !=NULL){
+      WARNING_MSG("Rentrez des bons paramètres");
+      return 1;
+    }
+    DEBUG_MSG("Affichage list des breakpoints");
+    return CMD_OK_RETURN_VALUE;
+  }
+
+  else {
+    WARNING_MSG("Rentrer une option (add / del /list)");
+    return 1;
+  }
+}
 /*************************************************************\
  Les deux fonctions principales de l'émulateur.
 	execute_cmd: parse la commande et l'execute en appelant la bonne fonction C
@@ -1179,6 +1134,10 @@ int execute_cmd(interpreteur inter) {
 
     else if(strcmp(token,"resume") == 0) {
         return resumecmd(inter);
+    }
+    
+    else if(strcmp(token,"break") == 0){
+      return breakcmd(inter);
     }
 
     WARNING_MSG("Unknown Command : '%s'\n", cmdStr);
