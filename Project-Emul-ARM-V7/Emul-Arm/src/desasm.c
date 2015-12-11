@@ -338,6 +338,7 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
     int success=0;
     int i=0;
     int pas =0;
+        int tmp = 0 ;
     unsigned int adresse_actuelle = 0;
                 dico16 = init_dico16(dico16);
                 dico32 = init_dico32(dico32);
@@ -485,26 +486,31 @@ DESASM_INST* lecture_txt(SEGMENT seg) {
         success=0;
 	indiceinst = 0;
         i++;
+       for(tmp=0;tmp;tmp++) {
+	  free(tableau_instruction[0].op[tmp]);
+       }
+       free(tableau_instruction[0].op);	 
     }
 
-    int tmp = 0 ;
+
     if(dico16 != NULL){
-      /* for(tmp = 0;tmp<SIZE16;tmp++) {
+      /*for(tmp = 0;tmp<SIZE16;tmp++) {
 	printf("%d",tmp); 
-	if(dico16[tmp]!=NULL) free(dico16[tmp]);
+	free(dico16[tmp]);
 	}*/
-      free(dico16);
+	free(dico16);
     }
     if(dico32 != NULL){
       /*for(tmp = 0;tmp<SIZE32;tmp++) {
 	printf("%d",tmp); 
-	if(dico32[tmp]!=NULL) free(dico32[tmp]);
+	free(dico32[tmp]);
 	}*/
       free(dico32);
-    }
+      }
     for(tmp=0;tmp<4;tmp++) {
      if((tableau_instruction[0].op)[tmp]!= NULL) free(tableau_instruction[0].op[tmp]);
     }
+    free(tableau_instruction[0].op);
     return tableau_instruction;
 }
 

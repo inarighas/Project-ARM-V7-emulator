@@ -40,7 +40,8 @@ SEGMENT init_segment(char* name,unsigned int adr,unsigned int size_max) {
     p->adresse_initiale=adr;
     strncpy(p->nom,name,20);
     p->contenu = NULL;
-    p->permis=strdup("---");
+    //p->permis=strdup("---");
+    p->permis = NULL;
     p->flag=1;
     return p;
 }
