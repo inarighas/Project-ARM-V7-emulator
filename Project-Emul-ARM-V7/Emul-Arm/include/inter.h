@@ -14,6 +14,7 @@
 
 #include "registre.h"
 #include "memory.h"
+#include "breakpoint.h"
 
 #include "common/types.h"
 #include "common/bits.h"
@@ -81,6 +82,7 @@ typedef struct {
     char first_token;
     MAPMEM memory;
     REGISTRE ** fulltable;
+    BREAKPOINT breaklist;
   //TYPE_INST* dico32;
   //TYPE_INST* dico16;
 } * interpreteur;
@@ -115,7 +117,8 @@ int debugcmd(interpreteur inter) ;
 int resumecmd(interpreteur inter) ;
 int runcmd(interpreteur inter) ;
 int stepcmd(interpreteur inter) ;
-
+int breakcmd(interpreteur inter);
+int helpcmd(void);
 
 
 int execute_cmd(interpreteur inter);

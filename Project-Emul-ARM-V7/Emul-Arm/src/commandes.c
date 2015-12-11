@@ -247,3 +247,56 @@ int _assert_cmd(char* string, char* type , unsigned int val) {
 
     return CMD_OK_RETURN_VALUE;
 }
+
+
+
+//Commande break: ------------------------------------------------
+int _breakcmd_add(interpreteur inter , unsigned int adr){
+  inter->breaklist = add_list_break(inter->breaklist, adr);
+  if (inter->breaklist == NULL) {
+    WARNING_MSG("Erreur ajout impossible");
+    return 1;
+  }
+  return CMD_OK_RETURN_VALUE;
+}
+
+int _breakcmd_del(BREAKPOINT* list , unsigned int adr){
+  BREAKPOINT l=*list;
+  BREAKPOINT p;
+ 
+  if (*list == NULL){
+    WARNING_MSG("Liste des breakpoints vide");
+    return 1;
+  }
+    if (l->stop_adr == adr){
+    *list = dehead_list_break(*list);
+    printf("adresse 0x%X supprimée\n",adr);
+    return CMD_OK_RETURN_VALUE;
+  }
+
+  while((l->nxt)!=NULL && ((l->nxt)->stop_adr != adr)){
+    l = l->nxt;
+    }
+ if(l->nxt== NULL){
+      WARNING_MSG(" Point d'arret inexistant");
+      return 1;
+    }
+    p = l->nxt;
+    p = dehead_list_break(p);
+    l->nxt = p;
+    DEBUG_MSG("adresse 0x%X supprimée",adr);
+    return CMD_OK_RETURN_VALUE;
+}
+
+int _breakcmd_del_all(BREAKPOINT *list){
+  if (*list == NULL){
+    WARNING_MSG("Liste des points d'arret est vide");
+    return 1;
+  }
+  *list = free_break_list(*list);
+  DEBUG_MSG("Liste libérée puis supprimée");
+  return CMD_OK_RETURN_VALUE;
+}
+  
+  
+    

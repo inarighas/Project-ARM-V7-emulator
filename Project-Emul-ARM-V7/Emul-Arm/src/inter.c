@@ -5,7 +5,6 @@
 #include "inter.h"
 #include "commandes.h"
 #include "registre.h"
-
 /**
  * allocation et init interpreteur
  * @return un pointeur vers une structure allouée dynamiquement
@@ -18,6 +17,7 @@ interpreteur init_inter(void) {
     inter->fulltable = calloc(2,sizeof(*(inter->fulltable)));
     inter->fulltable[0]=init_table_registre();
     inter->fulltable[1]=init_table_registre_etat();
+    (inter->breaklist) = init_list_break();
     //dico32 = NULL; dico16 = NULL;
     return inter;
 }
@@ -35,6 +35,7 @@ void del_inter(interpreteur inter) {
       free_table_registre_etat(inter->fulltable[1]);
       }
     free(inter->fulltable);
+    free_break_list(inter->breaklist);
     if (inter->memory != NULL) {
       DEBUG_MSG("Libération de la mémoire antérieure");
       for(j=0;j<NBSEG;j++) {
@@ -204,9 +205,14 @@ int is_reg(char *token) {
             || strcmp(str,"r12") == 0
             || strcmp(str,"sp") == 0
             || strcmp(str,"lr") == 0
-            || strcmp(str,"pc") == 0)
-        return 1;
-    else return 0;
+       || strcmp(str,"pc") == 0){
+      free(str);
+      return 1;
+    }
+    else {
+      free(str);
+      return 0;
+    }
 }
 
 
@@ -221,32 +227,7 @@ int is_state_reg(char *token2) {
         return 1;
     else return 0;
 }
-/*
-int is_range(char *chaine) {
 
-    char* token;
-    if (chaine==NULL) return 0;
-    //token=get_next_token(inter);
-    //if(strcmp(token,"+")==0)
-    //puts(token);
-    if (is_hexa(token)) {
-        token=strtok(NULL ," \t\n");
-        if(token!=NULL && (is_deci32(token) || is_deci8(token))
-                && (strtok(NULL ," \t\n")==NULL)) return 1;
-        else return 0;
-    }
-
-    else if(is_hexa(strtok(chaine ,":"))) {
-        token=strtok(NULL," \t\n");
-        if ((token!= NULL)
-                && is_hexa(token)
-                &&(strtok(NULL ," \t\n")==NULL)) return 1;
-        else return 0;
-    }
-
-    return 0;
-
-}*/
 
 /**
  * retourne le type du token (fonction très incomplete)
@@ -986,7 +967,7 @@ int stepcmd(interpreteur inter) {
 int breakcmd(interpreteur inter){
   char* token = NULL;
   unsigned int adresse[20];
-  int i = 0;
+  int i = 0; int j = 0;     int res = 0;
   token = get_next_token(inter);
   if (token == NULL){
     WARNING_MSG("Rentrez un parametre del/add/list");
@@ -994,6 +975,10 @@ int breakcmd(interpreteur inter){
   }
   if (strcmp(token,"add")==0){
     token = get_next_token(inter);
+    if(token == NULL){
+      WARNING_MSG("Rentrez unz adresse");
+      return 1;
+    }
     i=0;
     while (token!=NULL){
       switch (get_type(token)) {
@@ -1011,6 +996,12 @@ int breakcmd(interpreteur inter){
       i++;
     }
     DEBUG_MSG("Appel fonction ajout Breakpoint");
+    j=0;
+    while(j<i){
+      res = _breakcmd_add(inter,adresse[j]);
+      if (res == 1) return res;
+      j++;
+    }
     return CMD_OK_RETURN_VALUE;
   }
   else if (strcmp(token,"del")==0){
@@ -1021,7 +1012,7 @@ int breakcmd(interpreteur inter){
 	DEBUG_MSG("Adresse d'arret à del 0x%X",adresse[i]);
 	DEBUG_MSG("Appel fct suppresion unitaire");
 	token = get_next_token(inter);
-	if(token == NULL)  return CMD_OK_RETURN_VALUE;
+	if(token == NULL)  return _breakcmd_del(&(inter->breaklist),adresse[i]) ;
 	else {
 	  WARNING_MSG("Rentrez une adresse valable (hexa 32bits)");
 	  return 1;
@@ -1035,7 +1026,7 @@ int breakcmd(interpreteur inter){
       return 1;
     }
       DEBUG_MSG("Appel fonction libération");
-      return CMD_OK_RETURN_VALUE;
+      return _breakcmd_del_all(&(inter->breaklist));
     }
     else {
       WARNING_MSG("Rentrz les bons paramètres");
@@ -1049,6 +1040,7 @@ int breakcmd(interpreteur inter){
       return 1;
     }
     DEBUG_MSG("Affichage list des breakpoints");
+    affiche_list(inter->breaklist);
     return CMD_OK_RETURN_VALUE;
   }
 
@@ -1056,6 +1048,15 @@ int breakcmd(interpreteur inter){
     WARNING_MSG("Rentrer une option (add / del /list)");
     return 1;
   }
+}
+
+
+//Fonction help:
+int helpcmd(void){
+  printf("\t ** :Voici l'aide des commandes de cet émulateur: ** \n");
+  printf("*************** Grammaire des commandes de l’émulateur *************** \n La grammaire des commandes de l’interpreteur doit respecter les règles de production ci-dessous :\n \n <commande> ::=  <assert> — <break> — ”debug” — <disasm> — <disp> — ”exit” — <help> — <load> — ”resume” —<run> — <set> — <step> \n <assert> ::= ”assert” ”reg” <reg> <integer32> \n <assert> ::= ”assert” ”word” <@> <integer32> \n <assert> ::= ”assert” ”byte” <@> <integer8> \n <break> ::= ”break” ”add” <@>+ \n <break> ::= ”break” ”del” <@>—”all” \n <break> ::= ”break” ”list” \n <disasm> ::= ”disasm” <range> \n <disp> ::= ”disp” ”mem” ”map”—<range>+ \n <disp> ::= ”disp” ”reg” ”all”—<reg>+ \n <help> ::=  ”help”  \n <load> ::= ”load” <filename> \n <run> ::= ”run” [<@>] \n <set> ::= ”set” ”mem” ((”byte” <@> <integer8>) — (”word” <@> <integer32>))+ \n <set> ::= ”set” ”reg” (<reg> <integer32>)+ \n <step> ::= ”step” [”into”] \n \n Les symboles terminaux sont: \n \t<reg>::= un parmi tous les mnemoniques et numéros de registre  \n \t<integer32>::= entier signé sur 32 bits  \n \t<integer8>::= entier signé sur 8 bits \n \t<integer>::= integer32—integer8 \n \t<@>::= entier non-signé sur 32 bits repréesenté en hexadécimal  \n \t<range>::= @+integer — @:@  \n");
+  puts("Ce programme a été réalisé par Ali Saghiran & Damien Chabannes");
+  return CMD_OK_RETURN_VALUE;
 }
 /*************************************************************\
  Les deux fonctions principales de l'émulateur.
@@ -1139,12 +1140,12 @@ int execute_cmd(interpreteur inter) {
     else if(strcmp(token,"break") == 0){
       return breakcmd(inter);
     }
+    else if(strcmp(token,"help")==0 && get_next_token(inter)==NULL){
+      return helpcmd();
+    }
 
     WARNING_MSG("Unknown Command : '%s'\n", cmdStr);
     return CMD_UNKOWN_RETURN_VALUE;
 
 }
-
-
-
 

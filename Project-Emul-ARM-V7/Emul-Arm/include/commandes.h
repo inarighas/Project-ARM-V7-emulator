@@ -20,4 +20,8 @@ void _set_cmd_apsr(interpreteur inter, char*reg);
 void _set_mem_byte_cmd(interpreteur inter, unsigned int adresse, char valeur);
 void _set_mem_word_cmd(interpreteur inter, unsigned int adresse, unsigned int valeur);
 
+int _breakcmd_add(interpreteur inter, unsigned int adr);
+int _breakcmd_del(BREAKPOINT* list, unsigned int adr);
+int _breakcmd_del_all(BREAKPOINT* list);
+
 #endif
