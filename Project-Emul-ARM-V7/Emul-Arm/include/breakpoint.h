@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
- 
+
 
 // Struct break point
-typedef struct brlst{
-  unsigned int stop_adr;
-  struct brlst* nxt;
+typedef struct brlst {
+    unsigned int stop_adr;
+    struct brlst* nxt;
 }*BREAKPOINT;
 
 

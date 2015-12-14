@@ -11,7 +11,7 @@
 typedef enum { SRType_LSL, SRType_LSR, SRType_ASR, SRType_RRX, SRType_ROR } SRType;
 
 extern const char* TYPE_ENUM[5];
-
+ 
 //typedef struct {
   //unsigned int imm;    // Contient la valeur brut
   //char bits;           // Nb de bits dans la valeur au-dessus

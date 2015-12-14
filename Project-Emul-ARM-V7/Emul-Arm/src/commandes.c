@@ -109,10 +109,10 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
 
     //TODO allouer la memoire virtuelle
     if (inter->memory != NULL) {
-      DEBUG_MSG("Libération de la mémoire antérieure");
-      for(j=0;j<NBSEG;j++) free((inter->memory)[j]) ;
-      free(inter->memory);
-      }
+        DEBUG_MSG("Libération de la mémoire antérieure");
+        for(j=0; j<NBSEG; j++) free((inter->memory)[j]) ;
+        free(inter->memory);
+    }
     mem=init_memory_arm();
     inter->memory=mem;
 
@@ -138,7 +138,7 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
             // copier le contenu dans la memoire avant de liberer
 
             ((inter->memory)[nsegments-1]->flag) = 1;
-            ((inter->memory)[nsegments-1]->contenu) = content;
+            ((inter->memory)[nsegments-1]->contenu) = (char*) content;
             ((inter->memory)[nsegments-1]->taille) = taille;
             ((inter->memory)[nsegments-1]->taille_max) = 0x1000;
             affiche_segment(inter->memory[nsegments-1],NULL,NULL);
@@ -157,6 +157,7 @@ int _loadcmd(char *fichier_elf, interpreteur inter) {
     ((inter->memory)[PLACESTHEAP]->flag)=1;
     ((inter->memory)[PLACESTHEAP]->contenu)=calloc(1,sizeof(*((inter->memory)[PLACESTHEAP]->contenu)));
     ((inter->memory)[PLACESTHEAP]->taille)=0;
+    ((inter->memory)[nsegments-1]->taille_max) = 0xFFFF;
     affiche_segment(inter->memory[PLACESTHEAP],NULL,NULL);
     //stab32_print( symtab );
 
@@ -235,51 +236,37 @@ void _set_mem_word_cmd(interpreteur inter, unsigned int adresse, unsigned int va
 }
 
 
-//Commande Assert----
-int _assert_cmd(char* string, char* type , unsigned int val) {
-
-
-    if (string==NULL || type==NULL ) {
-        WARNING_MSG("Erreur command assert");
-        return 1;
-    }
-
-
-    return CMD_OK_RETURN_VALUE;
-}
-
-
 
 //Commande break: ------------------------------------------------
-int _breakcmd_add(interpreteur inter , unsigned int adr){
-  inter->breaklist = add_list_break(inter->breaklist, adr);
-  if (inter->breaklist == NULL) {
-    WARNING_MSG("Erreur ajout impossible");
-    return 1;
-  }
-  return CMD_OK_RETURN_VALUE;
+int _breakcmd_add(interpreteur inter , unsigned int adr) {
+    inter->breaklist = add_list_break(inter->breaklist, adr);
+    if (inter->breaklist == NULL) {
+        WARNING_MSG("Erreur ajout impossible");
+        return 1;
+    }
+    return CMD_OK_RETURN_VALUE;
 }
 
-int _breakcmd_del(BREAKPOINT* list , unsigned int adr){
-  BREAKPOINT l=*list;
-  BREAKPOINT p;
- 
-  if (*list == NULL){
-    WARNING_MSG("Liste des breakpoints vide");
-    return 1;
-  }
-    if (l->stop_adr == adr){
-    *list = dehead_list_break(*list);
-    printf("adresse 0x%X supprimée\n",adr);
-    return CMD_OK_RETURN_VALUE;
-  }
+int _breakcmd_del(BREAKPOINT* list , unsigned int adr) {
+    BREAKPOINT l=*list;
+    BREAKPOINT p;
 
-  while((l->nxt)!=NULL && ((l->nxt)->stop_adr != adr)){
-    l = l->nxt;
+    if (*list == NULL) {
+        WARNING_MSG("Liste des breakpoints vide");
+        return 1;
     }
- if(l->nxt== NULL){
-      WARNING_MSG(" Point d'arret inexistant");
-      return 1;
+    if (l->stop_adr == adr) {
+        *list = dehead_list_break(*list);
+        printf("adresse 0x%X supprimée\n",adr);
+        return CMD_OK_RETURN_VALUE;
+    }
+
+    while((l->nxt)!=NULL && ((l->nxt)->stop_adr != adr)) {
+        l = l->nxt;
+    }
+    if(l->nxt== NULL) {
+        WARNING_MSG(" Point d'arret inexistant");
+        return 1;
     }
     p = l->nxt;
     p = dehead_list_break(p);
@@ -288,15 +275,115 @@ int _breakcmd_del(BREAKPOINT* list , unsigned int adr){
     return CMD_OK_RETURN_VALUE;
 }
 
-int _breakcmd_del_all(BREAKPOINT *list){
-  if (*list == NULL){
-    WARNING_MSG("Liste des points d'arret est vide");
-    return 1;
-  }
-  *list = free_break_list(*list);
-  DEBUG_MSG("Liste libérée puis supprimée");
-  return CMD_OK_RETURN_VALUE;
+int _breakcmd_del_all(BREAKPOINT *list) {
+    if (*list == NULL) {
+        WARNING_MSG("Liste des points d'arret est vide");
+        return 1;
+    }
+    *list = free_break_list(*list);
+    DEBUG_MSG("Liste libérée puis supprimée");
+    return CMD_OK_RETURN_VALUE;
 }
-  
-  
-    
+
+
+// Assert commande // ----------------------------------------------
+/*
+int _assert_cmd(interpreteur inter , unsigned int adress , unsigned int value , int type){
+}
+*/
+
+int _assert_cmd(interpreteur inter, char* string, char* type , unsigned int val) {
+    SEGMENT seg;
+    int i = 0;
+    unsigned int adress;
+    unsigned int init;
+    char* ptr =NULL; char* ptrd = NULL;
+    char bytes[2];
+    if (inter == NULL || inter->memory ==NULL) {
+        WARNING_MSG("Erreur memoire inaccessible");
+        return 1;
+    }
+    if (string==NULL || type==NULL ) {
+        WARNING_MSG("Erreur command assert");
+        return 1;
+    }
+    adress = strtoul(string,NULL,16);
+    if(strcmp(type,"byte")==0) {
+        for(i=0; i<3; i++) {
+            seg = (inter->memory)[i];
+            init = (seg->adresse_initiale);
+            if (adress >= init ) {
+	      ptr = get_byte_seg(seg,adress);
+	      if(ptr!=NULL){
+		if(*ptr == val){
+		  DEBUG_MSG("La valeur est bien à 0x%X",val);
+		  return CMD_OK_RETURN_VALUE;
+		}
+		  
+                WARNING_MSG("À 0x%X La valeur est 0x%X et NON 0x%X",adress,seg->contenu[adress-init],val);
+                return 1;
+	      }
+	    }
+	}
+    }
+    if(strcmp(type,"word")==0) {
+      adress = strtoul(string,NULL,16);
+      if(adress%2 != 0){
+	WARNING_MSG("Cannot access to an odd adress");
+	return 1;
+      }
+      bytes[1] = (val >> 8) & 0xFF;
+      bytes[0] = val & 0xFF;
+      for(i=0;i<3; i++) {
+	seg = (inter->memory)[i];
+	init = (seg->adresse_initiale);
+	  ptr = get_byte_seg(seg,adress);
+	  ptrd = get_byte_seg(seg,adress+1);
+	  if(ptr != NULL && ptrd != NULL){
+	    if(*ptrd == bytes[1] && *ptr == bytes[0]){
+	      DEBUG_MSG("La valeur est bien 0x%X",val);
+	      return CMD_OK_RETURN_VALUE;
+	    }	    
+	    WARNING_MSG("À 0x%X La valeur est 0x%X %X et NON 0x%X",adress,(unsigned int)(seg->contenu[adress-init] & 0xFF),(unsigned int)(seg->contenu[adress-init+1] & 0xFF),val);
+	  return 1 ;
+	  }
+      }
+      WARNING_MSG("Adresse non atteinte ou Bug non réglé");
+      return 1;
+    }
+    WARNING_MSG("Should never be here");
+    return 1;
+}
+
+
+
+int _assert_cmd_reg(interpreteur inter , char* name , unsigned int value) {
+
+    REGISTRE Reg;
+    if(name == NULL) return 1;
+    if(inter == NULL || inter->fulltable == NULL || inter->fulltable[0] == NULL ) {
+        WARNING_MSG("Table Registre introuvable NULL");
+        return 1;
+    }
+
+    Reg = trouve_registre(name,inter->fulltable[0]);
+    if (Reg == NULL) {
+        Reg = trouve_registre(name,inter->fulltable[1]);
+        if (Reg == NULL) {
+            WARNING_MSG("Registre Introuvable ?");
+            return 1;
+        }
+    }
+    if(value != Reg->valeur) {
+        WARNING_MSG("Le registre %s de taille %d est de valeur 0x%X et non 0x%X,",Reg->nom,Reg->taille,Reg->valeur,value);
+        return 1;
+    }
+    else if(value == Reg->valeur) {
+        DEBUG_MSG(" Oui ! Le registre %s est de valeur 0x%X et de taille %d",Reg->nom,Reg->valeur,Reg->taille);
+        return CMD_OK_RETURN_VALUE;
+    }
+    else {
+        WARNING_MSG("Should never be here !");
+        return 1;
+    }
+}

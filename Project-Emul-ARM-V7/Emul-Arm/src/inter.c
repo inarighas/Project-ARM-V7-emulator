@@ -3,8 +3,10 @@
 //Appel des commandes associées
 
 #include "inter.h"
-#include "commandes.h"
 #include "registre.h"
+#include "desasm.h"
+#include "commandes.h"
+
 /**
  * allocation et init interpreteur
  * @return un pointeur vers une structure allouée dynamiquement
@@ -17,8 +19,15 @@ interpreteur init_inter(void) {
     inter->fulltable = calloc(2,sizeof(*(inter->fulltable)));
     inter->fulltable[0]=init_table_registre();
     inter->fulltable[1]=init_table_registre_etat();
+    DEBUG_MSG("Initialisation de la Breaklist");
     (inter->breaklist) = init_list_break();
-    //dico32 = NULL; dico16 = NULL;
+
+    inter->dico16 = NULL;
+    inter->dico32 = NULL;
+    inter->dico16 =  init_dico16(inter->dico16);
+    inter->dico32 =  init_dico32(inter->dico32);
+
+    DEBUG_MSG("Chargement des dictionnaires d'instructions");
     return inter;
 }
 
@@ -27,25 +36,35 @@ interpreteur init_inter(void) {
  * @param inter le pointeur vers l'interpreteur à libérer
  */
 void del_inter(interpreteur inter) {
-  int j = 0 ;
-  if (inter !=NULL){
-    if(inter->fulltable != NULL){
-      DEBUG_MSG("Libération tables de registres");
-      free_table_registre(inter->fulltable[0]);
-      free_table_registre_etat(inter->fulltable[1]);
-      }
-    free(inter->fulltable);
-    free_break_list(inter->breaklist);
-    if (inter->memory != NULL) {
-      DEBUG_MSG("Libération de la mémoire antérieure");
-      for(j=0;j<NBSEG;j++) {
-	if(inter->memory[j] != NULL && ((inter->memory)[j]->contenu) != NULL) free((inter->memory)[j]->contenu);
-	free((inter->memory)[j]) ;
-      }
-      free(inter->memory);
-      }
-     free(inter);
-  }
+    int j = 0 ;
+    if (inter !=NULL) {
+        if(inter->fulltable != NULL) {
+            DEBUG_MSG("Libération tables de registres");
+            free_table_registre(inter->fulltable[0]);
+            free_table_registre_etat(inter->fulltable[1]);
+        }
+        free(inter->fulltable);
+        free_break_list(inter->breaklist);
+        DEBUG_MSG("Breaklist libérée");
+        if (inter->memory != NULL) {
+            DEBUG_MSG("Libération de la mémoire antérieure");
+            for(j=0; j<NBSEG; j++) {
+                if(inter->memory[j] != NULL && ((inter->memory)[j]->contenu) != NULL) free((inter->memory)[j]->contenu);
+                free((inter->memory)[j]) ;
+            }
+            free(inter->memory);
+        }
+        for(j=0; j<SIZE32; j++) {
+            free((inter->dico32)[j]);
+        }
+        free(inter->dico32);
+        for(j=0; j<SIZE16; j++) {
+            free((inter->dico16)[j]);
+        }
+        free(inter->dico16);
+        DEBUG_MSG("Dictionnaire d'instruction libéré");
+        free(inter);
+    }
 }
 
 /**
@@ -205,13 +224,13 @@ int is_reg(char *token) {
             || strcmp(str,"r12") == 0
             || strcmp(str,"sp") == 0
             || strcmp(str,"lr") == 0
-       || strcmp(str,"pc") == 0){
-      free(str);
-      return 1;
+            || strcmp(str,"pc") == 0) {
+        free(str);
+        return 1;
     }
     else {
-      free(str);
-      return 0;
+        free(str);
+        return 0;
     }
 }
 
@@ -468,15 +487,15 @@ int dispcmd(interpreteur inter) {
         }
 
         else {
-	  DEBUG_MSG("Affichage de registres singuliers");
-	  printf("Nom \t \t Taille \t \t Valeur\n");
+            DEBUG_MSG("Affichage de registres singuliers");
+            printf("Nom \t \t Taille \t \t Valeur\n");
             while(token != NULL) {
                 if(is_reg(token) != 0) {
-		  /*if (get_next_token(inter)!= NULL) {
-                        WARNING_MSG("Commande Incorrecte");
-                        return 1;
-			}*/
-		    _dispcmd(token,inter,NULL,NULL);
+                    /*if (get_next_token(inter)!= NULL) {
+                                  WARNING_MSG("Commande Incorrecte");
+                                  return 1;
+                    }*/
+                    _dispcmd(token,inter,NULL,NULL);
                     token = get_next_token(inter);
                 }
                 else {
@@ -484,7 +503,7 @@ int dispcmd(interpreteur inter) {
                     return 1;
                 }
             }
-	    return CMD_OK_RETURN_VALUE;
+            return CMD_OK_RETURN_VALUE;
         }
     }
 
@@ -546,6 +565,7 @@ int disasmcmd(interpreteur inter) {
 
         }
         else if(strcmp(token,"+") == 0) {
+            add1 = strtoul(adresse1,NULL,16);
             if((token = get_next_token(inter)) == NULL) {
                 WARNING_MSG("[**Erreur**] 	Rentrez le decalage souhaite");
                 return 1;
@@ -553,6 +573,12 @@ int disasmcmd(interpreteur inter) {
             else if(is_deci32(token) || is_deci8(token)) {
                 decalage = token;
                 DEBUG_MSG("decalage = %s",decalage);
+                add2 = add1 + strtol(decalage,NULL,10);
+            }
+            else if(is_hexa32(token) || is_hexa8(token)) {
+                decalage = token;
+                DEBUG_MSG("decalage = 0x%s",decalage);
+                add2 = add1 + strtol(decalage,NULL,16);
             }
             else {
                 WARNING_MSG("[**Erreur**] 	Rentrez un decalage valide");
@@ -576,9 +602,10 @@ int disasmcmd(interpreteur inter) {
         WARNING_MSG("[**Erreur**] Adresse impaire");
         return 1;
     }
-
+    DEBUG_MSG("Adresse de départ 0x%X",add1);
+    DEBUG_MSG("Adresse d'arrivée 0x%X",add2);
     SEGMENT seg=trouve_segment_nom(".text",inter->memory);
-    return _desasm_cmd(seg, add1 , add2);
+    return _desasm_cmd(seg, add1 , add2,inter);
 
 
 }
@@ -668,8 +695,6 @@ int setcmd(interpreteur inter) {
                 return 1;
             }
             DEBUG_MSG("CAS 'MEM' ");
-            puts(token);
-            //while(token!=NULL){
             switch (get_type(token)) {
             case HEXA32:
             case HEXA8:
@@ -749,7 +774,6 @@ int setcmd(interpreteur inter) {
             return 1;
         }
         return CMD_OK_RETURN_VALUE;
-        //}
     }
 
     else {
@@ -775,7 +799,7 @@ int assertcmd(interpreteur inter) {
     }
 
     else if(strcmp(token,"reg") == 0) {
-        DEBUG_MSG("type\t\t\t: registre");
+        DEBUG_MSG("type : Registre");
         if((token=get_next_token(inter)) == NULL) {
             WARNING_MSG("[**Erreur**] 	Il manque le nom d'un registre à co évaluer");
             return 1;
@@ -804,12 +828,12 @@ int assertcmd(interpreteur inter) {
             WARNING_MSG("Commande incorrecte ou terme supplementaire parazite :)");
             return 1;
         }
-        return _assert_cmd("registre",registre,valeur);
+        return _assert_cmd_reg(inter,registre,valeur);
 
     }
 
     else if(strcmp(token,"word") == 0) {					//l'utilisatuer veut évaluer un word
-        DEBUG_MSG("type\t\t\t: Word");
+        DEBUG_MSG("type : Word");
         if((token=get_next_token(inter)) == NULL) {
             WARNING_MSG("[**Erreur**] 	Il manque l'adresse du word a evaluer");
             return 1;
@@ -826,7 +850,7 @@ int assertcmd(interpreteur inter) {
                 DEBUG_MSG("valeur a tester\t\t: %d ",valeur);
             }
             else if(get_type(token) == HEXA32 || get_type(token) == HEXA8) {
-                valeur = strtol(token,NULL,16);
+                valeur = strtoul(token,NULL,16);
                 DEBUG_MSG("valeur a tester\t\t: 0x%X ",valeur);
             }
             else {
@@ -842,30 +866,30 @@ int assertcmd(interpreteur inter) {
             WARNING_MSG("Commande incorrecte ou terme supplementaire parazite :)");
             return 1;
         }
-        return _assert_cmd("word",adresse,valeur);
+        return _assert_cmd(inter,adresse,"word",valeur);
     }
 
 
     else if(strcmp(token,"byte") == 0) {					//l'utilisateur veut évaluer un byte
-        DEBUG_MSG("type\t\t\t: Byte");
+        DEBUG_MSG("type : Byte");
         if((token=get_next_token(inter)) == NULL) {
             WARNING_MSG("[**Erreur**] 	Il manque l'adresse du byte a evaluer");
             return 1;
         }
         else if(get_type(token) == HEXA32 || get_type(token) == HEXA8) {				//l'adresse est bien en hexa
             adresse = token;
-            DEBUG_MSG("adresse du byte\t\t: %s",adresse);
+            DEBUG_MSG("adresse du byte : %s",adresse);
             if((token=get_next_token(inter)) == NULL) {
                 WARNING_MSG("[**Erreur**] 	Il manque la valeur a tester");
                 return 1;
             }
             else if(get_type(token) == DECI8) {
                 valeur = strtol(token,NULL,10);
-                DEBUG_MSG("valeur a tester\t\t: %d",valeur);
+                DEBUG_MSG("valeur a tester : %d",valeur);
             }
             else if(get_type(token) == HEXA8) {
-                valeur = strtol(token,NULL,16);
-                DEBUG_MSG("valeur a tester\t\t: 0x%X",valeur);
+                valeur = strtoul(token,NULL,16);
+                DEBUG_MSG("valeur a tester : 0x%X",valeur);
             }
             else {
                 WARNING_MSG("[**Erreur**] 	Valeur non valide");
@@ -880,7 +904,7 @@ int assertcmd(interpreteur inter) {
             WARNING_MSG("Commande incorrecte ou terme supplementaire parazite :)");
             return 1;
         }
-        return _assert_cmd("byte",adresse,valeur);
+        return _assert_cmd(inter,adresse,"byte",valeur);
     }
     WARNING_MSG("Commande incorrect:Rentrez le type d'element à tester");
     return 1;
@@ -964,99 +988,101 @@ int stepcmd(interpreteur inter) {
 
 
 //-----------Commande Break : ----------------------------------------------------
-int breakcmd(interpreteur inter){
-  char* token = NULL;
-  unsigned int adresse[20];
-  int i = 0; int j = 0;     int res = 0;
-  token = get_next_token(inter);
-  if (token == NULL){
-    WARNING_MSG("Rentrez un parametre del/add/list");
-    return 1;
-  }
-  if (strcmp(token,"add")==0){
+int breakcmd(interpreteur inter) {
+    char* token = NULL;
+    unsigned int adresse[20];
+    int i = 0;
+    int j = 0;
+    int res = 0;
     token = get_next_token(inter);
-    if(token == NULL){
-      WARNING_MSG("Rentrez unz adresse");
-      return 1;
+    if (token == NULL) {
+        WARNING_MSG("Rentrez un parametre del/add/list");
+        return 1;
     }
-    i=0;
-    while (token!=NULL){
-      switch (get_type(token)) {
-      case HEXA32:
-      case HEXA8:
-        adresse[i]= strtol(token,NULL,16);
-	DEBUG_MSG("Adresse d'arret 0x%X",adresse[i]);
-	break;
-      default:
-	WARNING_MSG("Rentrez une adresse valable (Hexa 32bits)");
-	return 1;
-	break;
-      }
-      token=get_next_token(inter);
-      i++;
+    if (strcmp(token,"add")==0) {
+        token = get_next_token(inter);
+        if(token == NULL) {
+            WARNING_MSG("Rentrez unz adresse");
+            return 1;
+        }
+        i=0;
+        while (token!=NULL) {
+            switch (get_type(token)) {
+            case HEXA32:
+            case HEXA8:
+                adresse[i]= strtol(token,NULL,16);
+                DEBUG_MSG("Adresse d'arret 0x%X",adresse[i]);
+                break;
+            default:
+                WARNING_MSG("Rentrez une adresse valable (Hexa 32bits)");
+                return 1;
+                break;
+            }
+            token=get_next_token(inter);
+            i++;
+        }
+        DEBUG_MSG("Appel fonction ajout Breakpoint");
+        j=0;
+        while(j<i) {
+            res = _breakcmd_add(inter,adresse[j]);
+            if (res == 1) return res;
+            j++;
+        }
+        return CMD_OK_RETURN_VALUE;
     }
-    DEBUG_MSG("Appel fonction ajout Breakpoint");
-    j=0;
-    while(j<i){
-      res = _breakcmd_add(inter,adresse[j]);
-      if (res == 1) return res;
-      j++;
-    }
-    return CMD_OK_RETURN_VALUE;
-  }
-  else if (strcmp(token,"del")==0){
-    token = get_next_token(inter);
-    i=0;
-    if ( (get_type(token) == HEXA32) || (get_type(token) == HEXA8)){
-	adresse[i]=strtol(token,NULL,16);
-	DEBUG_MSG("Adresse d'arret à del 0x%X",adresse[i]);
-	DEBUG_MSG("Appel fct suppresion unitaire");
-	token = get_next_token(inter);
-	if(token == NULL)  return _breakcmd_del(&(inter->breaklist),adresse[i]) ;
-	else {
-	  WARNING_MSG("Rentrez une adresse valable (hexa 32bits)");
-	  return 1;
-	}
-    }
-      
-    else if (strcmp(token,"all")==0){
-      token = get_next_token(inter);
-    if(token !=NULL){
-      WARNING_MSG("Rentrez des bons paramètres");
-      return 1;
-    }
-      DEBUG_MSG("Appel fonction libération");
-      return _breakcmd_del_all(&(inter->breaklist));
-    }
-    else {
-      WARNING_MSG("Rentrz les bons paramètres");
-      return 1;
-    }
-  }
-  else if (strcmp(token,"list")==0){
-    token = get_next_token(inter);
-    if(token !=NULL){
-      WARNING_MSG("Rentrez des bons paramètres");
-      return 1;
-    }
-    DEBUG_MSG("Affichage list des breakpoints");
-    affiche_list(inter->breaklist);
-    return CMD_OK_RETURN_VALUE;
-  }
+    else if (strcmp(token,"del")==0) {
+        token = get_next_token(inter);
+        i=0;
+        if ( (get_type(token) == HEXA32) || (get_type(token) == HEXA8)) {
+            adresse[i]=strtol(token,NULL,16);
+            DEBUG_MSG("Adresse d'arret à del 0x%X",adresse[i]);
+            DEBUG_MSG("Appel fct suppresion unitaire");
+            token = get_next_token(inter);
+            if(token == NULL)  return _breakcmd_del(&(inter->breaklist),adresse[i]) ;
+            else {
+                WARNING_MSG("Rentrez une adresse valable (hexa 32bits)");
+                return 1;
+            }
+        }
 
-  else {
-    WARNING_MSG("Rentrer une option (add / del /list)");
-    return 1;
-  }
+        else if (strcmp(token,"all")==0) {
+            token = get_next_token(inter);
+            if(token !=NULL) {
+                WARNING_MSG("Rentrez des bons paramètres");
+                return 1;
+            }
+            DEBUG_MSG("Appel fonction libération");
+            return _breakcmd_del_all(&(inter->breaklist));
+        }
+        else {
+            WARNING_MSG("Rentrz les bons paramètres");
+            return 1;
+        }
+    }
+    else if (strcmp(token,"list")==0) {
+        token = get_next_token(inter);
+        if(token !=NULL) {
+            WARNING_MSG("Rentrez des bons paramètres");
+            return 1;
+        }
+        DEBUG_MSG("Affichage list des breakpoints");
+        affiche_list(inter->breaklist);
+        return CMD_OK_RETURN_VALUE;
+    }
+
+    else {
+        WARNING_MSG("Rentrer une option (add / del /list)");
+        return 1;
+    }
 }
 
 
 //Fonction help:
-int helpcmd(void){
-  printf("\t ** :Voici l'aide des commandes de cet émulateur: ** \n");
-  printf("*************** Grammaire des commandes de l’émulateur *************** \n La grammaire des commandes de l’interpreteur doit respecter les règles de production ci-dessous :\n \n <commande> ::=  <assert> — <break> — ”debug” — <disasm> — <disp> — ”exit” — <help> — <load> — ”resume” —<run> — <set> — <step> \n <assert> ::= ”assert” ”reg” <reg> <integer32> \n <assert> ::= ”assert” ”word” <@> <integer32> \n <assert> ::= ”assert” ”byte” <@> <integer8> \n <break> ::= ”break” ”add” <@>+ \n <break> ::= ”break” ”del” <@>—”all” \n <break> ::= ”break” ”list” \n <disasm> ::= ”disasm” <range> \n <disp> ::= ”disp” ”mem” ”map”—<range>+ \n <disp> ::= ”disp” ”reg” ”all”—<reg>+ \n <help> ::=  ”help”  \n <load> ::= ”load” <filename> \n <run> ::= ”run” [<@>] \n <set> ::= ”set” ”mem” ((”byte” <@> <integer8>) — (”word” <@> <integer32>))+ \n <set> ::= ”set” ”reg” (<reg> <integer32>)+ \n <step> ::= ”step” [”into”] \n \n Les symboles terminaux sont: \n \t<reg>::= un parmi tous les mnemoniques et numéros de registre  \n \t<integer32>::= entier signé sur 32 bits  \n \t<integer8>::= entier signé sur 8 bits \n \t<integer>::= integer32—integer8 \n \t<@>::= entier non-signé sur 32 bits repréesenté en hexadécimal  \n \t<range>::= @+integer — @:@  \n");
-  puts("Ce programme a été réalisé par Ali Saghiran & Damien Chabannes");
-  return CMD_OK_RETURN_VALUE;
+int helpcmd(void) {
+    printf("\t ** :Voici l'aide des commandes de cet émulateur: ** \n");
+    printf("*************** Grammaire des commandes de l’émulateur *************** \n La grammaire des commandes de l’interpreteur doit respecter les règles de production ci-dessous :\n \n <commande> ::=  <assert> — <break> — ”debug” — <disasm> — <disp> — ”exit” — <help> — <load> — ”resume” —<run> — <set> — <step> \n <assert> ::= ”assert” ”reg” <reg> <integer32> \n <assert> ::= ”assert” ”word” <@> <integer32> \n <assert> ::= ”assert” ”byte” <@> <integer8> \n <break> ::= ”break” ”add” <@>+ \n <break> ::= ”break” ”del” <@>—”all” \n <break> ::= ”break” ”list” \n <disasm> ::= ”disasm” <range> \n <disp> ::= ”disp” ”mem” ”map”—<range>+ \n <disp> ::= ”disp” ”reg” ”all”—<reg>+ \n <help> ::=  ”help”  \n <load> ::= ”load” <filename> \n <run> ::= ”run” [<@>] \n <set> ::= ”set” ”mem” ((”byte” <@> <integer8>) — (”word” <@> <integer32>))+ \n <set> ::= ”set” ”reg” (<reg> <integer32>)+ \n <step> ::= ”step” [”into”] \n \n Les symboles terminaux sont: \n \t<reg>::= un parmi tous les mnemoniques et numéros de registre  \n \t<integer32>::= entier signé sur 32 bits  \n \t<integer8>::= entier signé sur 8 bits \n \t<integer>::= integer32—integer8 \n \t<@>::= entier non-signé sur 32 bits repréesenté en hexadécimal  \n \t<range>::= @+integer — @:@  \n");
+    puts("Ce programme a été réalisé par Ali Saghiran & Damien Chabannes");
+    return CMD_OK_RETURN_VALUE;
 }
 /*************************************************************\
  Les deux fonctions principales de l'émulateur.
@@ -1136,12 +1162,12 @@ int execute_cmd(interpreteur inter) {
     else if(strcmp(token,"resume") == 0) {
         return resumecmd(inter);
     }
-    
-    else if(strcmp(token,"break") == 0){
-      return breakcmd(inter);
+
+    else if(strcmp(token,"break") == 0) {
+        return breakcmd(inter);
     }
-    else if(strcmp(token,"help")==0 && get_next_token(inter)==NULL){
-      return helpcmd();
+    else if(strcmp(token,"help")==0 && get_next_token(inter)==NULL) {
+        return helpcmd();
     }
 
     WARNING_MSG("Unknown Command : '%s'\n", cmdStr);

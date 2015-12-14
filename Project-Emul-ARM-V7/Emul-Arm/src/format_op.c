@@ -12,6 +12,7 @@ void affiche_immediate(IMMEDIATE  value) {
 IMMEDIATE immediate(char* str ,unsigned int code) {
     unsigned int debut,fin,val;
     unsigned int nb_bits;
+    int taille = 0;
     char* token;
     char* s = strdup(str);
     IMMEDIATE returnvalue = calloc(1,sizeof(*returnvalue));
@@ -22,10 +23,11 @@ IMMEDIATE immediate(char* str ,unsigned int code) {
         sscanf(token,"%u-%u",&fin,&debut);
         nb_bits= fin - debut + 1;
         val= (val << nb_bits) | ((code >> debut) & ((1<<nb_bits)-1));
+        taille += nb_bits;
     }
     while((token = strtok(NULL,":"))!=NULL);
-    returnvalue->bits=nb_bits;
-    returnvalue->imm = val & ((0x1 << (nb_bits))-1);
+    returnvalue->bits=taille;
+    returnvalue->imm = val & ((0x1 << (taille))-1);
     free(s);
     return returnvalue;
 }
@@ -168,39 +170,46 @@ IMMEDIATE thumbexpandIMM_c(IMMEDIATE imm12,unsigned int* carry) {
     unsigned int carryout=0;
     IMMEDIATE unrotated_imm=NULL;
     IMMEDIATE imm32 = NULL;
+    unsigned int tmp,tmpd;
+    if(imm12 == NULL || carry == NULL) {
+        WARNING_MSG("Argument null");
+        return NULL;
+    }
+    tmp = imm12->imm & 0x0C00;
+    tmpd = imm12->imm & 0x300;
 
-    if ((imm12->imm & 0x0C00)==0x0) {
-        switch ((imm12->imm & 0x300)) {
+    if (tmp ==0x0) {
+        switch ((tmpd & 0x300)) {
         case 0x000:
             imm32 = immediate("7-0",imm12->imm);
-	    	imm32->bits=32;
+            imm32->bits=32;
             break;
         case 0x100:
-	  if((immediate("7-0",imm12->imm)->imm)==0) {
+            if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-      imm32 = immediate("7-0",imm12->imm);
-	  imm32->imm = (((imm32->imm) << 16) | (imm32->imm));
-	  imm32->bits=32;
+            imm32 = immediate("7-0",imm12->imm);
+            imm32->imm = (((imm32->imm) << 16) | (imm32->imm));
+            imm32->bits=32;
             break;
         case 0x200:
-	  if((immediate("7-0",imm12->imm)->imm)==0) {
+            if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-      imm32 = immediate("7-0",imm12->imm);
-	  imm32->imm = (((imm32->imm) << 24) | ((imm32->imm) << 8));
-	  imm32->bits = 32;
+            imm32 = immediate("7-0",imm12->imm);
+            imm32->imm = (((imm32->imm) << 24) | ((imm32->imm) << 8));
+            imm32->bits = 32;
             break;
         case 0x300:
-	 	 if((immediate("7-0",imm12->imm)->imm)==0) {
+            if((immediate("7-0",imm12->imm)->imm)==0) {
                 WARNING_MSG("UNPREDICTABLE - thumbexpandIMM_c retourne 0");
                 return NULL;
             }
-        imm32 = immediate("7-0",imm12->imm);
-        imm32->imm = ((imm32->imm << 24) + (imm32->imm << 16) + (imm32->imm << 8) + (imm32->imm << 0));
-	    imm32->bits=32;
+            imm32 = immediate("7-0",imm12->imm);
+            imm32->imm = ((imm32->imm << 24) + (imm32->imm << 16) + (imm32->imm << 8) + (imm32->imm << 0));
+            imm32->bits=32;
             break;
         default:
             WARNING_MSG("UNPREDICTABLE -- cas inattendu");
@@ -212,11 +221,11 @@ IMMEDIATE thumbexpandIMM_c(IMMEDIATE imm12,unsigned int* carry) {
         carryout=*carry;
     }
     else {
-      unrotated_value = 0x0080 + (immediate("6-0",imm12->imm)->imm);
-      unrotated_imm=calloc(1,sizeof(*unrotated_imm));
-      unrotated_imm->imm = unrotated_value;
-      unrotated_imm->bits= 32;
-      imm32 = ROR_C(unrotated_imm,immediate("11-7",imm12->imm)->imm,carry);
+        unrotated_value = 0x0080 + (immediate("6-0",imm12->imm)->imm);
+        unrotated_imm=calloc(1,sizeof(*unrotated_imm));
+        unrotated_imm->imm = unrotated_value;
+        unrotated_imm->bits= 32;
+        imm32 = ROR_C(unrotated_imm,immediate("11-7",imm12->imm)->imm,carry);
     }
     *carry= carryout;
     return imm32;

@@ -13,7 +13,7 @@ LFLAGS=-lreadline -lm -lcurses
 CFLAGS_DBG=$(CFLAGS) -g -DDEBUG -DVERBOSE
 CFLAGS_RLS=$(CFLAGS)
 
-
+ 
 # definition des repertoires de source/destination
 SRCDIR=src
 INCDIR=include
@@ -64,6 +64,10 @@ clean :
 
 leak :
 	valgrind --leak-check=full ./$(TARGET)
+
+gdb	:
+	gdb ./$(TARGET)
+
 # créé l'archive à envoyer à votre tuteur (pas de rar SVP! et interdiction absolu d'envoyer autre chose qu'une archive, il ne doit y avoir qu'un seul fichier joint dans l'e-mail !)
 archive : 
 	make clean 

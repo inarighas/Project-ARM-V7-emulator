@@ -12,8 +12,8 @@ int _loadcmd(char *fichier_elf, interpreteur inter);
 
 int _dispcmd(char*string, interpreteur inter, char * adrdep, char*adrarr);
 
-int _assert_cmd(char* string, char* type , unsigned int val);
-
+int _assert_cmd(interpreteur inter, char* string, char* type , unsigned int val);
+int _assert_cmd_reg(interpreteur inter , char* name, unsigned int value);
 
 void _set_reg_cmd(interpreteur inter, char*reg, unsigned int valeur);
 void _set_cmd_apsr(interpreteur inter, char*reg);

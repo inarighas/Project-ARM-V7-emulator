@@ -137,20 +137,14 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
 
     else if(dep<=(seg->adresse_initiale) && (arr-dep)<=(seg->taille)) {
         //printf("Erreur arrivee apres segment\n");
-        DEBUG_MSG("Affichage du segment jusquà larrivée");
-        /*for (i=0 ; i<(arr-dep+1); i++){
-        	printf("%x ",seg->contenu[i]);
-        	}*/
+        //DEBUG_MSG("Affichage du segment jusquà larrivée");
         affiche_section((seg->nom), seg->adresse_initiale, (seg->contenu),(arr+1-(seg->adresse_initiale)),(seg->taille_max));
         puts(" ");
         return;
     }
 
     else if(dep>(seg->adresse_initiale) && (arr-dep)<=(seg->taille)) {
-        DEBUG_MSG("Départ au milieu du seg");
-        /*for (i=dep ; i<(arr-dep+1); i++){
-        	printf("%x ",seg->contenu[i]);
-        	}*/
+      //DEBUG_MSG("Départ au milieu du seg");
         affiche_section((seg->nom), dep, (seg->contenu),arr+1-dep,(seg->taille_max));
         puts(" ");
         return;
@@ -159,10 +153,6 @@ void affiche_segment(SEGMENT seg ,char* hexdep, char* hexarr) {
     else if (dep>(seg->adresse_initiale) && (arr-dep)>(seg->taille)) {
         sprintf(s,"%x ",(seg->taille));
         affiche_segment(seg ,hexdep, s);
-        /*for (i= dep; i<(arr+1); i++){
-        	printf("%x",seg->contenu[i-(seg->adresse_initiale)]);
-        	}
-        puts(" ");*/
         return;
     }
 
@@ -186,19 +176,14 @@ MAPMEM ajout_seg_map(MAPMEM mem,char* name, unsigned int adr, unsigned int size_
 //
 char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
 
-    //unsigned int hexval=0;
-    // char* str;    //not used
     int lim =(seg->adresse_initiale)+(seg->taille);
-
-    //if(hex!=NULL) hexval=strtol(hex,NULL,16);
-
     if (hexval<(seg->adresse_initiale)) {
-        WARNING_MSG("case introuvable dans ce segment {%s} ",seg->nom);
+      //WARNING_MSG("case introuvable dans ce segment {%s} ",seg->nom);
         return NULL;
     }
 
     else if (hexval>(seg->adresse_initiale)+(seg->taille_max)-1) {
-        WARNING_MSG("case introuvable dans ce segment{%s} ",seg->nom);
+      //WARNING_MSG("case introuvable dans ce segment{%s} ",seg->nom);
         return NULL;
     }
 
@@ -231,11 +216,11 @@ char* get_byte_seg(SEGMENT seg,unsigned int hexval) {
 
 //////////////////
 SEGMENT change_val_seg(SEGMENT seg,unsigned int hexval, char val) {
-    char *str;//[seg->taille_max];
+    char *str;
     str=get_byte_seg(seg,hexval);
     if(str==NULL) {
-        WARNING_MSG("Opération impossible");
-        return seg;
+      INFO_MSG("Segment analysé {%s}",seg->nom);
+      return seg;
     }
     *str=val;
     return seg;
@@ -243,18 +228,10 @@ SEGMENT change_val_seg(SEGMENT seg,unsigned int hexval, char val) {
 
 //
 SEGMENT change_plage_seg(SEGMENT seg, unsigned int dep, unsigned int arr , char* val) {
-    //unsigned int dep =0;
-    //unsigned int arr =0;
+
     int i =0;
     char* str;
-    // char s[32];       //not used
 
-    //if(hexarr==NULL || hexdep==NULL || val==NULL) return seg;
-
-    /*if(hexdep!=NULL && hexarr!=NULL) {
-    	dep = strtol(hexdep,NULL,16);
-    	arr = strtol(hexarr,NULL,16);
-    	}*/
 
     if (dep>arr) {
         DEBUG_MSG("adresse de départ apres arrivee");
@@ -300,7 +277,7 @@ void affiche_section(char* name, unsigned int start, char* content, unsigned int
     unsigned char octet =0;
     printf("\n section {%s} **[size: %d bytes]**[maxsize: 0x%x bytes]**loaded at 0x%x :\n",name,taille,taille_max,start);
     if (content!=NULL && taille>0) {
-        for(k=0; k<=taille; k++) {
+      for(k=0; k<taille; k++) { //------------------------------>>>>> <= par <
             // on affiche le contenu de la section qui devrait se retrouver
             // en "memoire virtuelle" à l'adresse virtuelle start+k
             // (*(content + k) dans la mémoire physique)

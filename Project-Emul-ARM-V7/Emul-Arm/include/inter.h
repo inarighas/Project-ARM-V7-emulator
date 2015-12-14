@@ -31,7 +31,7 @@
 /* taille max pour nos chaines de char */
 #define MAX_STR 1024
 
-
+ 
 /*************************************************************\
 Valeur de retour speciales pour la fonction
 	int execute_cmd(interpreteur inter) ;
@@ -50,6 +50,10 @@ Toute autre valeur signifie qu'une erreur est survenue
 // nombre max de sections que l'on extraira du fichier ELF
 #define NB_SECTIONS 4
 #define PLACESTHEAP 4
+
+//taille table d'instruction
+#define SIZE16 27
+#define SIZE32 26
 
 // nom de chaque section
 #define TEXT_SECTION_STR ".text"
@@ -75,6 +79,21 @@ typedef enum {INTERACTIF,SCRIPT,DEBUG_MODE} inter_mode;
 /* structure passée en parametre qui contient la connaissance de l'état de
  * l'interpréteur
  */
+
+//structure pour desassemblage, chargement du dico
+typedef struct
+{
+    char identifiant[15];
+    char mnemo[10];
+    int taille;
+    unsigned int masque, signature;
+    int nb_operande; 
+    int typeop[5];
+    char champop[5][15];
+
+} TYPE_INST;
+
+
 typedef struct {
     inter_mode mode;
     char input[MAX_STR];
@@ -83,11 +102,11 @@ typedef struct {
     MAPMEM memory;
     REGISTRE ** fulltable;
     BREAKPOINT breaklist;
-  //TYPE_INST* dico32;
-  //TYPE_INST* dico16;
+    TYPE_INST** dico32;
+    TYPE_INST** dico16;
 } * interpreteur;
 
-
+ 
 //Fonction associées à l'interpreteur---------------------------------------
 interpreteur init_inter(void) ;
 void del_inter(interpreteur inter);

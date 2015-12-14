@@ -12,7 +12,7 @@ REGISTRE creer_registre(char* name,int size) {
     REGISTRE p=NULL;
     p=calloc(1,sizeof(*p));
     if (p==NULL) {
-        printf("erreur allocation registre\n");
+        WARNING_MSG("erreur allocation registre\n");
         return NULL;
     }
 
@@ -30,7 +30,7 @@ REGISTRE* init_table_registre(void) {
     REGISTRE* p;
     p=calloc(16,sizeof(*p));             //16 registres dans l'ARM
     if(p==NULL) {
-        printf("erreur allocation table de registre \n");
+        WARNING_MSG("erreur allocation table de registre \n");
         return NULL;
     }
 
@@ -77,7 +77,7 @@ void free_registre(REGISTRE p) {
     char *s;
     s=strdup(p->nom);
     free (p);
-    DEBUG_MSG("registre %s libéré\n",s);
+    DEBUG_MSG("registre %s libéré",s);
     free(s);
 }
 
@@ -86,14 +86,14 @@ void free_registre(REGISTRE p) {
 void free_table_registre(REGISTRE* p) {
     int i;
     if ((p[0]->taille)!=32) {
-        printf("libération impossibl\n");
+        WARNING_MSG("libération impossible");
         return;
     }
     for(i=0; i<16; i++) {
         free(p[i]);
     }
     free(p);
-    printf("table de registres libérée \n");
+    INFO_MSG("table de registres libérée");
 }
 
 
@@ -102,14 +102,14 @@ void free_table_registre(REGISTRE* p) {
 void free_table_registre_etat(REGISTRE* p) {
     int i;
     if ((p[0]->taille)!=1) {
-        printf("libération impossibl\n");
+        WARNING_MSG("libération impossible");
         return;
     }
     for(i=0; i<4; i++) {
         free(p[i]);
     }
     free(p);
-    printf("table de registres d'état libérée \n");
+    INFO_MSG("table de registres d'état libérée");
 }
 
 //Afficher registre
@@ -130,7 +130,7 @@ void afficher_table_registre(REGISTRE *t) {
     int i;
     if(t==NULL) printf("Table vide\n");
     else if ((t[0]->taille)!=32) {
-        printf("affichage impossibl\n");
+        WARNING_MSG("affichage impossible");
         return;
     }
 
@@ -151,7 +151,7 @@ void afficher_table_registre_etat(REGISTRE *t) {
     int i;
     if(t==NULL) printf("Table vide\n");
     else if ((t[0]->taille)!=1) {
-        printf("affichage impossible\n");
+        WARNING_MSG("affichage impossible");
         return;
     }
 
@@ -185,14 +185,14 @@ REGISTRE trouve_registre(char* s,REGISTRE* T) {
             return T[i];
         }
     }
-    printf("registre introuvable\n");
+    WARNING_MSG("registre introuvable dans cette table");
     return NULL;
 }
 
 //Modifier valeur de registre
 REGISTRE modifier_valeur_reg(unsigned int newval,REGISTRE r) {
     if((4*sizeof(&newval))>(r->taille)) {
-        printf("nouvelle valeur trop grande\n");
+        WARNING_MSG("Nouvelle valeur trop grande");
         return r;
     }
     (r->valeur) = newval;
@@ -204,7 +204,10 @@ REGISTRE modifier_valeur_reg(unsigned int newval,REGISTRE r) {
 REGISTRE** table_registre_complete(REGISTRE* Tgen , REGISTRE* Tetat) {
     REGISTRE** p;
     p=calloc(2,sizeof(*p));
-    if( p==NULL) return NULL;
+    if (p==NULL) {
+      ERROR_MSG("Allocation impossible");
+      return NULL;
+    }
     p[0]=Tgen;
     p[1]=Tetat;
     return p;
