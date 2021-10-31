@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL           
-TEST_COMMENT="Teste assert byte mauvaise valeur"
-#-------
-
-assert byte 0x5000 toto

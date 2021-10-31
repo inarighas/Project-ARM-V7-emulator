@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=PASS         
-TEST_COMMENT="Test chargement standard"
-#-------
-
-set reg r1 8

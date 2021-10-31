@@ -1,7 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL
-TEST_COMMENT="Test disp registre non valide"
-#-------
-
-
-disp reg toto

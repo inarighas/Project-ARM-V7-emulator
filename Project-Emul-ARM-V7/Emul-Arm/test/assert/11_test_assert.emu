@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL           
-TEST_COMMENT="Teste assert word mauvaise valeur"
-#-------
-
-assert word 0x5000 toto

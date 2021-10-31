@@ -1,7 +1,0 @@
-#-------
-#TEST_RETURN_CODE=PASS          
-#TEST_COMMENT="Teste fonctionnement normal 1 adresse et 1 décalage"
-#-------
-
-
-disasm 0x5000+8

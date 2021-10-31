@@ -1,7 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL
-TEST_COMMENT="Test disp mem map avec un paramètre en trop"
-#-------
-
-
-disp mem map toto

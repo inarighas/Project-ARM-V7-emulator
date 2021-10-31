@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL        
-TEST_COMMENT="Test set reg paramètre en trop"
-#-------
-
-set reg r1 8 toto

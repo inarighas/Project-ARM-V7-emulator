@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL           
-TEST_COMMENT="Teste assert reg paramètre en trop"
-#-------
-
-assert reg r1 8 toto

@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL           
-TEST_COMMENT="Teste assert byte mauvaise adresse"
-#-------
-
-assert byte 5F10 8

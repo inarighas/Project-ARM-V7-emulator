@@ -1,7 +1,0 @@
-#-------
-#TEST_RETURN_CODE=FAIL           
-#TEST_COMMENT="Teste disasm 2ème adresse non valide"
-#-------
-
-
-disasm 0x5000:toto

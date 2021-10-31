@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL        
-TEST_COMMENT="Test set reg valeur trop grande"
-#-------
-
-set reg r1 10000000000000000000000

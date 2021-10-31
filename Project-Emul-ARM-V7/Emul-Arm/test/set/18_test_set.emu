@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL        
-TEST_COMMENT="Test mem word valeur manquante"
-#-------
-
-set mem word 0x5000

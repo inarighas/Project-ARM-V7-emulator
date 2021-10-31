@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=PASS           
-TEST_COMMENT="Teste fonctionnement standard"
-#-------
-
-assert reg r1 8

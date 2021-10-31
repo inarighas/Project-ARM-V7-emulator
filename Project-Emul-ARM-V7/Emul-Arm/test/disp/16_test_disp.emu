@@ -1,7 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL
-TEST_COMMENT="Test disp reg all avec un paramètre en trop"
-#-------
-
-
-disp reg all toto

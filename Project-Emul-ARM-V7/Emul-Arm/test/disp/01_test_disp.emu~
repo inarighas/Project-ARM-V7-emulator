@@ -1,7 +1,0 @@
-#-------
-TEST_RETURN_CODE=PASS         
-#EST_COMMENT="Test chargement standard"
-#-------
-
-load boucle.o
-disp mem map

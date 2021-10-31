@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL        
-TEST_COMMENT="Test set reg registre non valide"
-#-------
-
-set reg toto 8

@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=FAIL        
-TEST_COMMENT="Test mem word adresse non valide"
-#-------
-
-set mem word 5F10 8

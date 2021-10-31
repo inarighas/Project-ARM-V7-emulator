@@ -1,6 +1,0 @@
-#-------
-TEST_RETURN_CODE=PASS         
-TEST_COMMENT="Test chargement standard"
-#-------
-
-set mem word 0x5000 8
