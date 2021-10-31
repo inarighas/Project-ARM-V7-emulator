@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL           
+TEST_COMMENT="Teste assert reg mauvaise valeur"
+#-------
+
+assert reg r1 toto

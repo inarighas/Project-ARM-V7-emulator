@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem byte adresse non valide"
+#-------
+
+set mem byte 5F10 8

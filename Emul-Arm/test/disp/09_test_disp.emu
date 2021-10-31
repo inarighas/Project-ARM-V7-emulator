@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL
+TEST_COMMENT="Test disp mem avec 1ère adresse sur 36 bits"
+#-------
+
+
+disp mem 0x123456789:0x5000

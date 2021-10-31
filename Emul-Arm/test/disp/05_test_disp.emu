@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL       
+TEST_COMMENT="Test disp sans paramètre"
+#-------
+
+
+disp

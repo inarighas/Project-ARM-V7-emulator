@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODESPASS         
+#EST_COMMENT="Test chargement standard"
+#-------
+
+load boucle.o

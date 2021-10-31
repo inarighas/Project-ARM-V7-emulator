@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL           
+TEST_COMMENT="Teste assert word mauvaise adresse"
+#-------
+
+assert word 5F10 8

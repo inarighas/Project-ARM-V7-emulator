@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL      
+TEST_COMMENT="Test disp mem 2ème paramètre non valide"
+#-------
+
+
+disp mem toto

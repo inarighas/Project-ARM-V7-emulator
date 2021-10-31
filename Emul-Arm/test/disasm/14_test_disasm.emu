@@ -1,0 +1,7 @@
+#-------
+#TEST_RETURN_CODE=PASS           
+#TEST_COMMENT="Teste disasm fonctionnement standard 2 adresses"
+#-------
+
+
+disasm 0x5000:0x6000

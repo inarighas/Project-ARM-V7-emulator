@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL           
+TEST_COMMENT="Teste assert word paramètre en trop"
+#-------
+
+assert word 0x5000 8 toto

@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL
+TEST_COMMENT="Test disp mem 2ème adresse non valide"
+#-------
+
+
+disp mem 0x5000:toto

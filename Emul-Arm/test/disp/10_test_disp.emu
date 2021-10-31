@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=FAIL
+TEST_COMMENT="Test disp mem 1ère adresse valide mais pas de paramètre ensuite"
+#-------
+
+
+disp mem 0x5000

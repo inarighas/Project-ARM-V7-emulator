@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL           
+TEST_COMMENT="Teste assert byte paramètre en trop"
+#-------
+
+assert byte 0x5000 8 toto

@@ -1,0 +1,22 @@
+#ifndef _DESASSEMBLEUR_H
+#define _DESASSEMBLEUR_H
+
+#define NB 1
+typedef struct 
+{
+	char identifiant[16];
+	char mnemo[16];
+	int taille;
+	unsigned int masque, signature;
+	int nb_operande;					// On se limite à deux opérandes pour le moment
+	int typeop1;
+	int typeop2;
+	char champop1[20];
+	char champop2[20];
+	
+}TYPE_INST;
+
+
+
+
+#endif

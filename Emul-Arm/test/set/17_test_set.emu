@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem byte valeur manquante"
+#-------
+
+set mem byte 0x5000

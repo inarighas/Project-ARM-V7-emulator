@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem type non valide"
+#-------
+
+set mem toto 0x5000 8

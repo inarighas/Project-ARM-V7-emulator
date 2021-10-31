@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL      
+#EST_COMMENT="Test commande fausse"
+#-------
+
+load boucle.o toto

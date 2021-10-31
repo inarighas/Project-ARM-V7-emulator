@@ -1,0 +1,7 @@
+#-------
+TEST_RETURN_CODE=PASS        
+TEST_COMMENT="Test chargement standard"
+#-------
+
+
+disp mem 0x5000:0x6000

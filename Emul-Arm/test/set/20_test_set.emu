@@ -1,0 +1,6 @@
+#-------
+TEST_RETURN_CODE=FAIL        
+TEST_COMMENT="Test mem word valeur non valide"
+#-------
+
+set mem word 0x5000 toto
